@@ -1,0 +1,74 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove list styles on ul, ol elements */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Set core root defaults */
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+/* Normalize hyperlink colors */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Remove outline on active elements */
+a:focus,
+button:focus {
+  outline: none;
+}
+
+/* Remove default button styles */
+button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Remove default input styles */
+input[type="text"],
+input[type="number"],
+textarea {
+  appearance: none;
+  border: none;
+  background-color: transparent;
+  resize: none;
+}
+
+/* Remove default select styles */
+select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Reset anchor underlines only on hover */
+a:hover {
+  text-decoration: none;
+}
