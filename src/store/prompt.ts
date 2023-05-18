@@ -1,8 +1,8 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import Fuse from "fuse.js";
-import { getLang } from "@/assets/locales";
-import { StoreKey } from "@/constant";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import Fuse from 'fuse.js';
+import { getLang } from '@/assets/locales';
+import { StoreKey } from '@/constant';
 
 export interface Prompt {
   id?: number;
@@ -27,8 +27,8 @@ export interface PromptStore {
 
 export const SearchService = {
   ready: false,
-  builtinEngine: new Fuse<Prompt>([], { keys: ["title"] }),
-  userEngine: new Fuse<Prompt>([], { keys: ["title"] }),
+  builtinEngine: new Fuse<Prompt>([], { keys: ['title'] }),
+  userEngine: new Fuse<Prompt>([], { keys: ['title'] }),
   count: {
     builtin: 0,
   },
@@ -111,8 +111,8 @@ export const usePromptStore = create<PromptStore>()(
 
       update(id: number, updater) {
         const prompt = get().prompts[id] ?? {
-          title: "",
-          content: "",
+          title: '',
+          content: '',
           id,
         };
 
@@ -136,39 +136,35 @@ export const usePromptStore = create<PromptStore>()(
       name: StoreKey.Prompt,
       version: 1,
       onRehydrateStorage(state) {
-        const PROMPT_URL = "./prompts.json";
-
-        type PromptList = Array<[string, string]>;
-
-        fetch(PROMPT_URL)
-          .then((res) => res.json())
-          .then((res) => {
-            let fetchPrompts = [res.en, res.cn];
-            if (getLang() === "cn") {
-              fetchPrompts = fetchPrompts.reverse();
-            }
-            const builtinPrompts = fetchPrompts.map(
-              (promptList: PromptList) => {
-                return promptList.map(
-                  ([title, content]) =>
-                  ({
-                    id: Math.random(),
-                    title,
-                    content,
-                  } as Prompt),
-                );
-              },
-            );
-
-            const userPrompts =
-              usePromptStore.getState().getUserPrompts() ?? [];
-
-            const allPromptsForSearch = builtinPrompts
-              .reduce((pre, cur) => pre.concat(cur), [])
-              .filter((v) => !!v.title && !!v.content);
-            SearchService.count.builtin = res.en.length + res.cn.length;
-            SearchService.init(allPromptsForSearch, userPrompts);
-          });
+        // to do
+        // const PROMPT_URL = "./prompts.json";
+        // type PromptList = Array<[string, string]>;
+        // fetch(PROMPT_URL)
+        //   .then((res) => res.json())
+        //   .then((res) => {
+        //     let fetchPrompts = [res.en, res.cn];
+        //     if (getLang() === "cn") {
+        //       fetchPrompts = fetchPrompts.reverse();
+        //     }
+        //     const builtinPrompts = fetchPrompts.map(
+        //       (promptList: PromptList) => {
+        //         return promptList.map(
+        //           ([title, content]) => ({
+        //             id: Math.random(),
+        //             title,
+        //             content,
+        //           } as Prompt),
+        //         );
+        //       },
+        //     );
+        //     const userPrompts =
+        //       usePromptStore.getState().getUserPrompts() ?? [];
+        //     const allPromptsForSearch = builtinPrompts
+        //       .reduce((pre, cur) => pre.concat(cur), [])
+        //       .filter((v) => !!v.title && !!v.content);
+        //     SearchService.count.builtin = res.en.length + res.cn.length;
+        //     SearchService.init(allPromptsForSearch, userPrompts);
+        //   });
       },
     },
   ),

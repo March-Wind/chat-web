@@ -3,14 +3,18 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Routes, Route } from 'react-router-dom';
 import Home from './pages/home';
 import { Path } from '@/constant';
-import { Chat } from './pages/chat';
-import RenameIcon from "@/assets/icons/rename.svg";
-// const Chat = lazy(() => import('./pages/chat'));
+// import { Chat } from './pages/chat';
+import RenameIcon from '@/assets/icons/rename.svg';
+const Chat = lazy(() => import('./pages/chat/index'));
 const router = createBrowserRouter([
   {
     path: '/',
     // element: <Home />,
-    element: <><img src={RenameIcon} alt="" /></>,
+    element: (
+      <>
+        <img src={RenameIcon} alt="" />
+      </>
+    ),
   },
   {
     path: '/chat',

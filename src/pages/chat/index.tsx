@@ -1,25 +1,24 @@
-import { useDebouncedCallback } from "use-debounce";
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import SendWhiteIcon from '@/assets/icons/send-white.svg';
+import BrainIcon from '@/assets/icons/brain.svg';
+import RenameIcon from '@/assets/icons/rename.svg';
+import ExportIcon from '@/assets/icons/share.svg';
+import ReturnIcon from '@/assets/icons/return.svg';
+import CopyIcon from '@/assets/icons/copy.svg';
+import DownloadIcon from '@/assets/icons/download.svg';
+import LoadingIcon from '@/assets/icons/three-dots.svg';
+import PromptIcon from '@/assets/icons/prompt.svg';
+import MaskIcon from '@/assets/icons/mask.svg';
+import MaxIcon from '@/assets/icons/max.svg';
+import MinIcon from '@/assets/icons/min.svg';
+import ResetIcon from '@/assets/icons/reload.svg';
 
-import SendWhiteIcon from "@/assets/icons/send-white.svg";
-import BrainIcon from "@/assets/icons/brain.svg";
-import RenameIcon from "@/assets/icons/rename.svg";
-import ExportIcon from "@/assets/icons/share.svg";
-import ReturnIcon from "@/assets/icons/return.svg";
-import CopyIcon from "@/assets/icons/copy.svg";
-import DownloadIcon from "@/assets/icons/download.svg";
-import LoadingIcon from "@/assets/icons/three-dots.svg";
-import PromptIcon from "@/assets/icons/prompt.svg";
-import MaskIcon from "@/assets/icons/mask.svg";
-import MaxIcon from "@/assets/icons/max.svg";
-import MinIcon from "@/assets/icons/min.svg";
-import ResetIcon from "@/assets/icons/reload.svg";
-
-import LightIcon from "@/assets/icons/light.svg";
-import DarkIcon from "@/assets/icons/dark.svg";
-import AutoIcon from "@/assets/icons/auto.svg";
-import BottomIcon from "@/assets/icons/bottom.svg";
-import StopIcon from "@/assets/icons/pause.svg";
+import LightIcon from '@/assets/icons/light.svg';
+import DarkIcon from '@/assets/icons/dark.svg';
+import AutoIcon from '@/assets/icons/auto.svg';
+import BottomIcon from '@/assets/icons/bottom.svg';
+import StopIcon from '@/assets/icons/pause.svg';
 
 import {
   ChatMessage,
@@ -30,34 +29,28 @@ import {
 
   // useAppConfig,
   DEFAULT_TOPIC,
-} from "@/store/chat";
-import { Theme, SubmitKey } from '@/store/config'
-import { useAppConfig } from '@/hooks/useAppConfig'
-import {
-  copyToClipboard,
-  downloadAs,
-  selectOrCopy,
-  autoGrowTextArea,
-  useMobileScreen,
-} from "@/tools/utils";
+} from '@/store/chat';
+import { Theme, SubmitKey } from '@/store/config';
+import { useAppConfig } from '@/hooks/useAppConfig';
+import { copyToClipboard, downloadAs, selectOrCopy, autoGrowTextArea, useMobileScreen } from '@/tools/utils';
 
 // import dynamic from "next/dynamic";
 
-import { ChatControllerPool } from "@/tools/controller";
-import { Prompt, usePromptStore } from "@/store/prompt";
-import Locale from "@/assets/locales";
+import { ChatControllerPool } from '@/tools/controller';
+import { Prompt, usePromptStore } from '@/store/prompt';
+import Locale from '@/assets/locales';
 
-import { IconButton } from "@/components/common/button";
-import styles from "@/app.module.scss";
-import chatStyle from "./chat.module.scss";
+import { IconButton } from '@/components/common/button';
+import styles from '@/app.module.scss';
+import chatStyle from './chat.module.scss';
 
-import { ListItem, Modal, showModal } from "@/components/common/ui-lib/ui-lib";
-import { useLocation, useNavigate } from "react-router-dom";
-import { LAST_INPUT_KEY, Path } from "@/constant";
-import { Avatar } from "@/components/common/emoji";
-import { MaskAvatar, MaskConfig } from "@/components/mask";
-import { useMaskStore } from "@/store/mask";
-import useCommand from "@/hooks/useCommand";
+import { ListItem, Modal, showModal } from '@/components/common/ui-lib/ui-lib';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { LAST_INPUT_KEY, Path } from '@/constant';
+import { Avatar } from '@/components/common/emoji';
+import { MaskAvatar, MaskConfig } from '@/components/mask';
+import { useMaskStore } from '@/store/mask';
+import useCommand from '@/hooks/useCommand';
 
 // const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
 //   loading: () => <LoadingIcon />,
@@ -68,18 +61,18 @@ function exportMessages(messages: ChatMessage[], topic: string) {
     `# ${topic}\n\n` +
     messages
       .map((m) => {
-        return m.role === "user"
+        return m.role === 'user'
           ? `## ${Locale.Export.MessageFromYou}:\n${m.content}`
           : `## ${Locale.Export.MessageFromChatGPT}:\n${m.content.trim()}`;
       })
-      .join("\n\n");
+      .join('\n\n');
   const filename = `${topic}.md`;
 
   showModal({
     title: Locale.Export.Title,
     children: (
       <div className="markdown-body">
-        <pre className={styles["export-content"]}>{mdText}</pre>
+        <pre className={styles['export-content']}>{mdText}</pre>
       </div>
     ),
     actions: [
@@ -118,9 +111,7 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             icon={<ResetIcon />}
             bordered
             text={Locale.Chat.Config.Reset}
-            onClick={() =>
-              confirm(Locale.Memory.ResetConfirm) && chatStore.resetSession()
-            }
+            onClick={() => confirm(Locale.Memory.ResetConfirm) && chatStore.resetSession()}
           />,
           <IconButton
             key="copy"
@@ -159,32 +150,24 @@ export function SessionConfigModel(props: { onClose: () => void }) {
   );
 }
 
-function PromptToast(props: {
-  showToast?: boolean;
-  showModal?: boolean;
-  setShowModal: (_: boolean) => void;
-}) {
+function PromptToast(props: { showToast?: boolean; showModal?: boolean; setShowModal: (_: boolean) => void }) {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
   const context = session.mask.context;
 
   return (
-    <div className={chatStyle["prompt-toast"]} key="prompt-toast">
+    <div className={chatStyle['prompt-toast']} key="prompt-toast">
       {props.showToast && (
         <div
-          className={chatStyle["prompt-toast-inner"] + " clickable"}
+          className={chatStyle['prompt-toast-inner'] + ' clickable'}
           role="button"
           onClick={() => props.setShowModal(true)}
         >
           <BrainIcon />
-          <span className={chatStyle["prompt-toast-content"]}>
-            {Locale.Context.Toast(context.length)}
-          </span>
+          <span className={chatStyle['prompt-toast-content']}>{Locale.Context.Toast(context.length)}</span>
         </div>
       )}
-      {props.showModal && (
-        <SessionConfigModel onClose={() => props.setShowModal(false)} />
-      )}
+      {props.showModal && <SessionConfigModel onClose={() => props.setShowModal(false)} />}
     </div>
   );
 }
@@ -194,18 +177,14 @@ function useSubmitHandler() {
   const submitKey = config.submitKey;
 
   const shouldSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key !== "Enter") return false;
-    if (e.key === "Enter" && e.nativeEvent.isComposing) return false;
+    if (e.key !== 'Enter') return false;
+    if (e.key === 'Enter' && e.nativeEvent.isComposing) return false;
     return (
       (config.submitKey === SubmitKey.AltEnter && e.altKey) ||
       (config.submitKey === SubmitKey.CtrlEnter && e.ctrlKey) ||
       (config.submitKey === SubmitKey.ShiftEnter && e.shiftKey) ||
       (config.submitKey === SubmitKey.MetaEnter && e.metaKey) ||
-      (config.submitKey === SubmitKey.Enter &&
-        !e.altKey &&
-        !e.ctrlKey &&
-        !e.shiftKey &&
-        !e.metaKey)
+      (config.submitKey === SubmitKey.Enter && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey)
     );
   };
 
@@ -215,10 +194,7 @@ function useSubmitHandler() {
   };
 }
 
-export function PromptHints(props: {
-  prompts: Prompt[];
-  onPromptSelect: (prompt: Prompt) => void;
-}) {
+export function PromptHints(props: { prompts: Prompt[]; onPromptSelect: (prompt: Prompt) => void }) {
   const noPrompts = props.prompts.length === 0;
   const [selectIndex, setSelectIndex] = useState(0);
   const selectedRef = useRef<HTMLDivElement>(null);
@@ -237,21 +213,18 @@ export function PromptHints(props: {
       const changeIndex = (delta: number) => {
         e.stopPropagation();
         e.preventDefault();
-        const nextIndex = Math.max(
-          0,
-          Math.min(props.prompts.length - 1, selectIndex + delta),
-        );
+        const nextIndex = Math.max(0, Math.min(props.prompts.length - 1, selectIndex + delta));
         setSelectIndex(nextIndex);
         selectedRef.current?.scrollIntoView({
-          block: "center",
+          block: 'center',
         });
       };
 
-      if (e.key === "ArrowUp") {
+      if (e.key === 'ArrowUp') {
         changeIndex(1);
-      } else if (e.key === "ArrowDown") {
+      } else if (e.key === 'ArrowDown') {
         changeIndex(-1);
-      } else if (e.key === "Enter") {
+      } else if (e.key === 'Enter') {
         const selectedPrompt = props.prompts.at(selectIndex);
         if (selectedPrompt) {
           props.onPromptSelect(selectedPrompt);
@@ -259,28 +232,25 @@ export function PromptHints(props: {
       }
     };
 
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener('keydown', onKeyDown);
 
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noPrompts, selectIndex]);
 
   if (noPrompts) return null;
   return (
-    <div className={styles["prompt-hints"]}>
+    <div className={styles['prompt-hints']}>
       {props.prompts.map((prompt, i) => (
         <div
           ref={i === selectIndex ? selectedRef : null}
-          className={
-            styles["prompt-hint"] +
-            ` ${i === selectIndex ? styles["prompt-hint-selected"] : ""}`
-          }
+          className={styles['prompt-hint'] + ` ${i === selectIndex ? styles['prompt-hint-selected'] : ''}`}
           key={prompt.title + i.toString()}
           onClick={() => props.onPromptSelect(prompt)}
           onMouseEnter={() => setSelectIndex(i)}
         >
-          <div className={styles["hint-title"]}>{prompt.title}</div>
-          <div className={styles["hint-content"]}>{prompt.content}</div>
+          <div className={styles['hint-title']}>{prompt.title}</div>
+          <div className={styles['hint-content']}>{prompt.content}</div>
         </div>
       ))}
     </div>
@@ -335,36 +305,24 @@ export function ChatActions(props: {
   const stopAll = () => ChatControllerPool.stopAll();
 
   return (
-    <div className={chatStyle["chat-input-actions"]}>
+    <div className={chatStyle['chat-input-actions']}>
       {couldStop && (
-        <div
-          className={`${chatStyle["chat-input-action"]} clickable`}
-          onClick={stopAll}
-        >
+        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={stopAll}>
           <StopIcon />
         </div>
       )}
       {!props.hitBottom && (
-        <div
-          className={`${chatStyle["chat-input-action"]} clickable`}
-          onClick={props.scrollToBottom}
-        >
+        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.scrollToBottom}>
           <BottomIcon />
         </div>
       )}
       {props.hitBottom && (
-        <div
-          className={`${chatStyle["chat-input-action"]} clickable`}
-          onClick={props.showPromptModal}
-        >
+        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.showPromptModal}>
           <BrainIcon />
         </div>
       )}
 
-      <div
-        className={`${chatStyle["chat-input-action"]} clickable`}
-        onClick={nextTheme}
-      >
+      <div className={`${chatStyle['chat-input-action']} clickable`} onClick={nextTheme}>
         {theme === Theme.Auto ? (
           <AutoIcon />
         ) : theme === Theme.Light ? (
@@ -374,15 +332,12 @@ export function ChatActions(props: {
         ) : null}
       </div>
 
-      <div
-        className={`${chatStyle["chat-input-action"]} clickable`}
-        onClick={props.showPromptHints}
-      >
+      <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.showPromptHints}>
         <PromptIcon />
       </div>
 
       <div
-        className={`${chatStyle["chat-input-action"]} clickable`}
+        className={`${chatStyle['chat-input-action']} clickable`}
         onClick={() => {
           navigate(Path.Masks);
         }}
@@ -393,19 +348,16 @@ export function ChatActions(props: {
   );
 }
 
-export function Chat() {
+function Chat() {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
-  const [session, sessionIndex] = useChatStore((state) => [
-    state.currentSession(),
-    state.currentSessionIndex,
-  ]);
+  const [session, sessionIndex] = useChatStore((state) => [state.currentSession(), state.currentSessionIndex]);
   const config = useAppConfig();
   const fontSize = config.fontSize;
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [userInput, setUserInput] = useState("");
+  const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
@@ -440,10 +392,7 @@ export function Chat() {
   const measure = useDebouncedCallback(
     () => {
       const rows = inputRef.current ? autoGrowTextArea(inputRef.current) : 1;
-      const inputRows = Math.min(
-        20,
-        Math.max(2 + Number(!isMobileScreen), rows),
-      );
+      const inputRows = Math.min(20, Math.max(2 + Number(!isMobileScreen), rows));
       setInputRows(inputRows);
     },
     100,
@@ -467,7 +416,7 @@ export function Chat() {
       setPromptHints([]);
     } else if (!config.disablePromptHint && n < SEARCH_TEXT_LIMIT) {
       // check if need to trigger auto completion
-      if (text.startsWith("/")) {
+      if (text.startsWith('/')) {
         const searchText = text.slice(1);
         onSearch(searchText);
       }
@@ -475,11 +424,11 @@ export function Chat() {
   };
 
   const doSubmit = (userInput: string) => {
-    if (userInput.trim() === "") return;
+    if (userInput.trim() === '') return;
     setIsLoading(true);
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
-    setUserInput("");
+    setUserInput('');
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
     setAutoScroll(true);
@@ -493,12 +442,8 @@ export function Chat() {
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // if ArrowUp and no userInput, fill with last input
-    if (
-      e.key === "ArrowUp" &&
-      userInput.length <= 0 &&
-      !(e.metaKey || e.altKey || e.ctrlKey)
-    ) {
-      setUserInput(localStorage.getItem(LAST_INPUT_KEY) ?? "");
+    if (e.key === 'ArrowUp' && userInput.length <= 0 && !(e.metaKey || e.altKey || e.ctrlKey)) {
+      setUserInput(localStorage.getItem(LAST_INPUT_KEY) ?? '');
       e.preventDefault();
       return;
     }
@@ -522,7 +467,7 @@ export function Chat() {
       if (message.id === messageId) {
         break;
       }
-      if (message.role === "user") {
+      if (message.role === 'user') {
         lastUserMessageIndex = i;
       }
     }
@@ -531,9 +476,7 @@ export function Chat() {
   };
 
   const deleteMessage = (userIndex: number) => {
-    chatStore.updateCurrentSession((session) =>
-      session.messages.splice(userIndex, 2),
-    );
+    chatStore.updateCurrentSession((session) => session.messages.splice(userIndex, 2));
   };
 
   const onDelete = (botMessageId: number) => {
@@ -558,10 +501,7 @@ export function Chat() {
 
   // const accessStore = useAccessStore();
 
-  if (
-    context.length === 0 &&
-    session.messages.at(0)?.content !== BOT_HELLO.content
-  ) {
+  if (context.length === 0 && session.messages.at(0)?.content !== BOT_HELLO.content) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     // if (!accessStore.isAuthorized()) {
     //   copiedHello.content = Locale.Error.Unauthorized;
@@ -575,27 +515,27 @@ export function Chat() {
     .concat(
       isLoading
         ? [
-          {
-            ...createMessage({
-              role: "assistant",
-              content: "……",
-            }),
-            preview: true,
-          },
-        ]
+            {
+              ...createMessage({
+                role: 'assistant',
+                content: '……',
+              }),
+              preview: true,
+            },
+          ]
         : [],
     )
     .concat(
       userInput.length > 0 && config.sendPreviewBubble
         ? [
-          {
-            ...createMessage({
-              role: "user",
-              content: userInput,
-            }),
-            preview: true,
-          },
-        ]
+            {
+              ...createMessage({
+                role: 'user',
+                content: userInput,
+              }),
+              preview: true,
+            },
+          ]
         : [],
     );
 
@@ -624,18 +564,13 @@ export function Chat() {
     <div className={styles.chat} key={session.id}>
       <div className="window-header">
         <div className="window-header-title">
-          <div
-            className={`window-header-main-title " ${styles["chat-body-title"]}`}
-            onClickCapture={renameSession}
-          >
+          <div className={`window-header-main-title " ${styles['chat-body-title']}`} onClickCapture={renameSession}>
             {!session.topic ? DEFAULT_TOPIC : session.topic}
           </div>
-          <div className="window-header-sub-title">
-            {Locale.Chat.SubTitle(session.messages.length)}
-          </div>
+          <div className="window-header-sub-title">{Locale.Chat.SubTitle(session.messages.length)}</div>
         </div>
         <div className="window-actions">
-          <div className={"window-action-button" + " " + styles.mobile}>
+          <div className={'window-action-button' + ' ' + styles.mobile}>
             <IconButton
               icon={<ReturnIcon />}
               bordered
@@ -644,11 +579,7 @@ export function Chat() {
             />
           </div>
           <div className="window-action-button">
-            <IconButton
-              icon={<RenameIcon />}
-              bordered
-              onClick={renameSession}
-            />
+            <IconButton icon={<RenameIcon />} bordered onClick={renameSession} />
           </div>
           <div className="window-action-button">
             <IconButton
@@ -669,24 +600,18 @@ export function Chat() {
                 icon={config.tightBorder ? <MinIcon /> : <MaxIcon />}
                 bordered
                 onClick={() => {
-                  config.update(
-                    (config) => (config.tightBorder = !config.tightBorder),
-                  );
+                  config.update((config) => (config.tightBorder = !config.tightBorder));
                 }}
               />
             </div>
           )}
         </div>
 
-        <PromptToast
-          showToast={!hitBottom}
-          showModal={showPromptModal}
-          setShowModal={setShowPromptModal}
-        />
+        <PromptToast showToast={!hitBottom} showModal={showPromptModal} setShowModal={setShowPromptModal} />
       </div>
 
       <div
-        className={styles["chat-body"]}
+        className={styles['chat-body']}
         ref={scrollRef}
         onScroll={(e) => onChatBodyScroll(e.currentTarget)}
         onMouseDown={() => inputRef.current?.blur()}
@@ -697,62 +622,37 @@ export function Chat() {
         }}
       >
         {messages.map((message, i) => {
-          const isUser = message.role === "user";
-          const showActions =
-            !isUser &&
-            i > 0 &&
-            !(message.preview || message.content.length === 0);
+          const isUser = message.role === 'user';
+          const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
           const showTyping = message.preview || message.streaming;
 
           return (
-            <div
-              key={i}
-              className={
-                isUser ? styles["chat-message-user"] : styles["chat-message"]
-              }
-            >
-              <div className={styles["chat-message-container"]}>
-                <div className={styles["chat-message-avatar"]}>
-                  {message.role === "user" ? (
-                    <Avatar avatar={config.avatar} />
-                  ) : (
-                    <MaskAvatar mask={session.mask} />
-                  )}
+            <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
+              <div className={styles['chat-message-container']}>
+                <div className={styles['chat-message-avatar']}>
+                  {message.role === 'user' ? <Avatar avatar={config.avatar} /> : <MaskAvatar mask={session.mask} />}
                 </div>
-                {showTyping && (
-                  <div className={styles["chat-message-status"]}>
-                    {Locale.Chat.Typing}
-                  </div>
-                )}
-                <div className={styles["chat-message-item"]}>
+                {showTyping && <div className={styles['chat-message-status']}>{Locale.Chat.Typing}</div>}
+                <div className={styles['chat-message-item']}>
                   {showActions && (
-                    <div className={styles["chat-message-top-actions"]}>
+                    <div className={styles['chat-message-top-actions']}>
                       {message.streaming ? (
-                        <div
-                          className={styles["chat-message-top-action"]}
-                          onClick={() => onUserStop(message.id ?? i)}
-                        >
+                        <div className={styles['chat-message-top-action']} onClick={() => onUserStop(message.id ?? i)}>
                           {Locale.Chat.Actions.Stop}
                         </div>
                       ) : (
                         <>
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onDelete(message.id ?? i)}
-                          >
+                          <div className={styles['chat-message-top-action']} onClick={() => onDelete(message.id ?? i)}>
                             {Locale.Chat.Actions.Delete}
                           </div>
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onResend(message.id ?? i)}
-                          >
+                          <div className={styles['chat-message-top-action']} onClick={() => onResend(message.id ?? i)}>
                             {Locale.Chat.Actions.Retry}
                           </div>
                         </>
                       )}
 
                       <div
-                        className={styles["chat-message-top-action"]}
+                        className={styles['chat-message-top-action']}
                         onClick={() => copyToClipboard(message.content)}
                       >
                         {Locale.Chat.Actions.Copy}
@@ -776,10 +676,8 @@ export function Chat() {
                   /> */}
                 </div>
                 {!isUser && !message.preview && (
-                  <div className={styles["chat-message-actions"]}>
-                    <div className={styles["chat-message-action-date"]}>
-                      {message.date.toLocaleString()}
-                    </div>
+                  <div className={styles['chat-message-actions']}>
+                    <div className={styles['chat-message-action-date']}>{message.date.toLocaleString()}</div>
                   </div>
                 )}
               </div>
@@ -788,7 +686,7 @@ export function Chat() {
         })}
       </div>
 
-      <div className={styles["chat-input-panel"]}>
+      <div className={styles['chat-input-panel']}>
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
@@ -803,14 +701,14 @@ export function Chat() {
             }
 
             inputRef.current?.focus();
-            setUserInput("/");
-            onSearch("");
+            setUserInput('/');
+            onSearch('');
           }}
         />
-        <div className={styles["chat-input-panel-inner"]}>
+        <div className={styles['chat-input-panel-inner']}>
           <textarea
             ref={inputRef}
-            className={styles["chat-input"]}
+            className={styles['chat-input']}
             placeholder={Locale.Chat.Input(submitKey)}
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
@@ -823,7 +721,7 @@ export function Chat() {
           <IconButton
             icon={<SendWhiteIcon />}
             text={Locale.Chat.Send}
-            className={styles["chat-input-send"]}
+            className={styles['chat-input-send']}
             type="primary"
             onClick={() => doSubmit(userInput)}
           />
@@ -832,3 +730,4 @@ export function Chat() {
     </div>
   );
 }
+export default Chat;

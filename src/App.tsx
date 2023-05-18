@@ -11,7 +11,10 @@ import { useAppConfig } from '@/hooks/useAppConfig';
 import { Path, SlotID } from '@/constant';
 import { SideBar } from '@/components/common/sidebar';
 import './app.scss';
-import styles from "./app.module.scss";
+import './assets/styles/globals.scss';
+import './assets/styles/markdown.scss';
+import './assets/styles/highlight.scss';
+import styles from './app.module.scss';
 // const router = createBrowserRouter([
 //   {
 //     path: "/",
@@ -35,28 +38,23 @@ const App = () => {
   const isMobileScreen = useMobileScreen();
   // useEffect(() => {
 
-
   // }, [])
   return (
     <div
       className={
-        styles.container +
-        ` ${config.tightBorder && !isMobileScreen
-          ? styles["tight-container"]
-          : styles.container
-        }`
+        styles.container + ` ${config.tightBorder && !isMobileScreen ? styles['tight-container'] : styles.container}`
       }
     >
       {/* <SideBar className={isHome ? styles["sidebar-show"] : ""} /> */}
 
-      <div className={styles["window-content"]} id={SlotID.AppBody}>
+      <div className={styles['window-content']} id={SlotID.AppBody}>
         <Provider store={store}>
           {/* <Routes /> */}
           <RouterProvider router={router} />
         </Provider>
       </div>
     </div>
-  )
+  );
 
   // return (
   //   <BrowserRouter>
@@ -70,8 +68,7 @@ const App = () => {
   //     <>你好132342</>
   //   </>
   // )
-}
-
+};
 
 // ReactDOM.render(<App />,
 //   document.getElementById('root'),
