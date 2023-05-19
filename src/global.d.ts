@@ -58,4 +58,4 @@ declare module '*.jp2' {
   export = value;
 }
 
-export {};
+// export { };

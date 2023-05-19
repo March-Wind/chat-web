@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { FC, lazy, useEffect } from 'react';
 // import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { RouterProvider, useLocation, createBrowserRouter, Link } from 'react-router-dom';
-import router from './routes';
+import { useLocation, BrowserRouter } from 'react-router-dom';
+import RoutesCom from './routes';
 import { Provider } from 'react-redux';
 import store from './store';
 import { useSwitchTheme } from '@/hooks/useSwitchTheme';
@@ -10,68 +10,44 @@ import { useMobileScreen } from '@/hooks/useWindowSize';
 import { useAppConfig } from '@/hooks/useAppConfig';
 import { Path, SlotID } from '@/constant';
 import { SideBar } from '@/components/common/sidebar';
+import styles from './app.module.scss';
 import './app.scss';
 import './assets/styles/globals.scss';
 import './assets/styles/markdown.scss';
 import './assets/styles/highlight.scss';
-import styles from './app.module.scss';
-// const router = createBrowserRouter([
-//   {
-//     path: "/",
-//     element: (
-//       <div>
-//         <h1>Hello World</h1>
-//       </div>
-//     ),
-//   },
-//   {
-//     path: "about",
-//     element: <div>About</div>,
-//   },
-// ]);
-const App = () => {
+
+const PageLayout: FC<{ children: React.ReactNode }> = (props) => {
+  const { children } = props;
   useSwitchTheme();
   const config = useAppConfig();
-  // const location = useLocation();
-  // const isHome = location.pathname === Path.Home;
-  // const isHome = true;
+  const location = useLocation();
+  const isHome = location.pathname === Path.Home;
   const isMobileScreen = useMobileScreen();
-  // useEffect(() => {
-
-  // }, [])
   return (
     <div
       className={
         styles.container + ` ${config.tightBorder && !isMobileScreen ? styles['tight-container'] : styles.container}`
       }
     >
-      {/* <SideBar className={isHome ? styles["sidebar-show"] : ""} /> */}
-
+      <SideBar className={isHome ? styles['sidebar-show'] : ''} />
       <div className={styles['window-content']} id={SlotID.AppBody}>
-        <Provider store={store}>
-          {/* <Routes /> */}
-          <RouterProvider router={router} />
-        </Provider>
+        {children}
       </div>
     </div>
   );
-
-  // return (
-  //   <BrowserRouter>
-
-  //   </BrowserRouter>
-  // )
-
-  // return (
-  //   <>
-  //     <RouterProvider router={router} />
-  //     <>你好132342</>
-  //   </>
-  // )
 };
 
-// ReactDOM.render(<App />,
-//   document.getElementById('root'),
-// );
+const App = () => {
+  return (
+    <BrowserRouter>
+      <PageLayout>
+        <Provider store={store}>
+          <RoutesCom />
+        </Provider>
+      </PageLayout>
+    </BrowserRouter>
+  );
+};
+
 const root = createRoot(document.getElementById('root') as Element);
 root.render(<App />);

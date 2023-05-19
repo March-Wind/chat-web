@@ -48,7 +48,7 @@ import { ListItem, Modal, showModal } from '@/components/common/ui-lib/ui-lib';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LAST_INPUT_KEY, Path } from '@/constant';
 import { Avatar } from '@/components/common/emoji';
-import { MaskAvatar, MaskConfig } from '@/components/mask';
+import { MaskAvatar, MaskConfig } from '@/pages/mask';
 import { useMaskStore } from '@/store/mask';
 import useCommand from '@/hooks/useCommand';
 

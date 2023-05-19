@@ -72,3 +72,17 @@ select {
 a:hover {
   text-decoration: none;
 }
+#root {
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  touch-action: pan-x pan-y;
+}

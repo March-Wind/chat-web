@@ -6,36 +6,69 @@ import { Path } from '@/constant';
 // import { Chat } from './pages/chat';
 import RenameIcon from '@/assets/icons/rename.svg';
 const Chat = lazy(() => import('./pages/chat/index'));
-const router = createBrowserRouter([
-  {
-    path: '/',
-    // element: <Home />,
-    element: (
-      <>
-        <img src={RenameIcon} alt="" />
-      </>
-    ),
-  },
-  {
-    path: '/chat',
-    element: (
-      <Suspense>
-        <Chat />
-      </Suspense>
-    ),
-  },
-]);
-// const RoutesCom = () => {
+const Settings = lazy(() => import('./pages/settings/index'));
+const NewChat = lazy(() => import('./pages/new-chat/index'));
+const MaskPage = lazy(() => import('./pages/mask/index'));
+// const router = createBrowserRouter([
+//   {
+//     path: '/',
+//     // element: <Home />,
+//     element: (
+//       <>
+//         <img src={RenameIcon} alt="" />
+//       </>
+//     ),
+//   },
+//   {
+//     path: '/chat',
+//     element: (
+//       <Suspense>
+//         <Chat />
+//       </Suspense>
+//     ),
+//   },
+// ]);
 
-//   return <Routes>
-//     <Route path={Path.Home} element={<>nihao</>} />
-//     {/* <Route path={Path.NewChat} element={<NewChat />} /> */}
-//     {/* <Route path={Path.Masks} element={<MaskPage />} /> */}
-//     <Route path={Path.Chat} element={<Chat />} />
-//     {/* <Route path={Path.Settings} element={<Settings />} /> */}
-//   </Routes>
-// }
-// export {
-//   RoutesCom
-// }
-export default router;
+// export default router;
+
+const RoutesCom = () => {
+  return (
+    <Routes>
+      <Route path={Path.Home} element={<Home />} />
+      <Route
+        path={Path.NewChat}
+        element={
+          <Suspense>
+            <NewChat />
+          </Suspense>
+        }
+      />
+      <Route
+        path={Path.Masks}
+        element={
+          <Suspense>
+            <MaskPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path={Path.Chat}
+        element={
+          <Suspense>
+            <Chat />
+          </Suspense>
+        }
+      />
+      <Route
+        path={Path.Settings}
+        element={
+          <Suspense>
+            <Settings />
+          </Suspense>
+        }
+      />
+    </Routes>
+  );
+};
+
+export default RoutesCom;

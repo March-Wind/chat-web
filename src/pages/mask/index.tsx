@@ -1,32 +1,32 @@
-import React, { useState } from "react";
-import { IconButton } from "@/components/common/button";
+import React, { useState } from 'react';
+import { IconButton } from '@/components/common/button';
 // import { ErrorBoundary } from "./error";
 
-import styles from "./mask.module.scss";
+import styles from './mask.module.scss';
 
-import DownloadIcon from "@/assets/icons/download.svg";
-import UploadIcon from "@/assets/icons/upload.svg";
-import EditIcon from "@/assets/icons/edit.svg";
-import AddIcon from "@/assets/icons/add.svg";
-import CloseIcon from "@/assets/icons/close.svg";
-import DeleteIcon from "@/assets/icons/delete.svg";
-import EyeIcon from "@/assets/icons/eye.svg";
-import CopyIcon from "@/assets/icons/copy.svg";
+import DownloadIcon from '@/assets/icons/download.svg';
+import UploadIcon from '@/assets/icons/upload.svg';
+import EditIcon from '@/assets/icons/edit.svg';
+import AddIcon from '@/assets/icons/add.svg';
+import CloseIcon from '@/assets/icons/close.svg';
+import DeleteIcon from '@/assets/icons/delete.svg';
+import EyeIcon from '@/assets/icons/eye.svg';
+import CopyIcon from '@/assets/icons/copy.svg';
 
-import { DEFAULT_MASK_AVATAR, Mask, useMaskStore } from "@/store/mask";
-import { ChatMessage, useChatStore } from "@/store/chat";
+import { DEFAULT_MASK_AVATAR, Mask, useMaskStore } from '@/store/mask';
+import { ChatMessage, useChatStore } from '@/store/chat';
 import { ModelConfig } from '@/store/config';
-import { ROLES, Updater } from "@/types";
-import { Input, List, ListItem, Modal, Popover, Select } from "@/components/common/ui-lib/ui-lib";
-import { Avatar, AvatarPicker } from "@/components/common/emoji";
-import Locale, { AllLangs, Lang } from "@/assets/locales";
-import { useNavigate } from "react-router-dom";
+import { ROLES, Updater } from '@/types';
+import { Input, List, ListItem, Modal, Popover, Select } from '@/components/common/ui-lib/ui-lib';
+import { Avatar, AvatarPicker } from '@/components/common/emoji';
+import Locale, { AllLangs, Lang } from '@/assets/locales';
+import { useNavigate } from 'react-router-dom';
 
-import chatStyle from "@/pages/chat/chat.module.scss";
-import { downloadAs, readFromFile } from "@/tools/utils";
-import { ModelConfigList } from "./model-config";
-import { FileName, Path } from "@/constant";
-import { BUILTIN_MASK_STORE } from "@/assets/masks";
+import chatStyle from '@/pages/chat/chat.module.scss';
+import { downloadAs, readFromFile } from '@/tools/utils';
+import { ModelConfigList } from './model-config';
+import { FileName, Path } from '@/constant';
+import { BUILTIN_MASK_STORE } from '@/assets/masks';
 
 export function MaskAvatar(props: { mask: Mask }) {
   return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
@@ -77,10 +77,7 @@ export function MaskConfig(props: {
             open={showPicker}
             onClose={() => setShowPicker(false)}
           >
-            <div
-              onClick={() => setShowPicker(true)}
-              style={{ cursor: "pointer" }}
-            >
+            <div onClick={() => setShowPicker(true)} style={{ cursor: 'pointer' }}>
               <MaskAvatar mask={props.mask} />
             </div>
           </Popover>
@@ -89,37 +86,28 @@ export function MaskConfig(props: {
           <input
             type="text"
             value={props.mask.name}
-            onInput={(e) =>
-              props.updateMask((mask) => (mask.name = e.currentTarget.value))
-            }
+            onInput={(e) => props.updateMask((mask) => (mask.name = e.currentTarget.value))}
           ></input>
         </ListItem>
       </List>
 
       <List>
-        <ModelConfigList
-          modelConfig={{ ...props.mask.modelConfig }}
-          updateConfig={updateConfig}
-        />
+        <ModelConfigList modelConfig={{ ...props.mask.modelConfig }} updateConfig={updateConfig} />
         {props.extraListItems}
       </List>
     </>
   );
 }
 
-function ContextPromptItem(props: {
-  prompt: ChatMessage;
-  update: (prompt: ChatMessage) => void;
-  remove: () => void;
-}) {
+function ContextPromptItem(props: { prompt: ChatMessage; update: (prompt: ChatMessage) => void; remove: () => void }) {
   const [focusingInput, setFocusingInput] = useState(false);
 
   return (
-    <div className={chatStyle["context-prompt-row"]}>
+    <div className={chatStyle['context-prompt-row']}>
       {!focusingInput && (
         <Select
           value={props.prompt.role}
-          className={chatStyle["context-role"]}
+          className={chatStyle['context-role']}
           onChange={(e) =>
             props.update({
               ...props.prompt,
@@ -137,7 +125,7 @@ function ContextPromptItem(props: {
       <Input
         value={props.prompt.content}
         type="text"
-        className={chatStyle["context-content"]}
+        className={chatStyle['context-content']}
         rows={focusingInput ? 5 : 1}
         onFocus={() => setFocusingInput(true)}
         onBlur={() => setFocusingInput(false)}
@@ -151,7 +139,7 @@ function ContextPromptItem(props: {
       {!focusingInput && (
         <IconButton
           icon={<DeleteIcon />}
-          className={chatStyle["context-delete-button"]}
+          className={chatStyle['context-delete-button']}
           onClick={() => props.remove()}
           bordered
         />
@@ -180,7 +168,7 @@ export function ContextPrompts(props: {
 
   return (
     <>
-      <div className={chatStyle["context-prompt"]} style={{ marginBottom: 20 }}>
+      <div className={chatStyle['context-prompt']} style={{ marginBottom: 20 }}>
         {context.map((c, i) => (
           <ContextPromptItem
             key={i}
@@ -190,17 +178,17 @@ export function ContextPrompts(props: {
           />
         ))}
 
-        <div className={chatStyle["context-prompt-row"]}>
+        <div className={chatStyle['context-prompt-row']}>
           <IconButton
             icon={<AddIcon />}
             text={Locale.Context.Add}
             bordered
-            className={chatStyle["context-prompt-button"]}
+            className={chatStyle['context-prompt-button']}
             onClick={() =>
               addContextPrompt({
-                role: "user",
-                content: "",
-                date: "",
+                role: 'user',
+                content: '',
+                date: '',
               })
             }
           />
@@ -210,7 +198,7 @@ export function ContextPrompts(props: {
   );
 }
 
-export function MaskPage() {
+function MaskPage() {
   const navigate = useNavigate();
 
   const maskStore = useMaskStore();
@@ -218,12 +206,10 @@ export function MaskPage() {
 
   const [filterLang, setFilterLang] = useState<Lang>();
 
-  const allMasks = maskStore
-    .getAll()
-    .filter((m) => !filterLang || m.lang === filterLang);
+  const allMasks = maskStore.getAll().filter((m) => !filterLang || m.lang === filterLang);
 
   const [searchMasks, setSearchMasks] = useState<Mask[]>([]);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const masks = searchText.length > 0 ? searchMasks : allMasks;
 
   // simple search, will refactor later
@@ -238,8 +224,7 @@ export function MaskPage() {
   };
 
   const [editingMaskId, setEditingMaskId] = useState<number | undefined>();
-  const editingMask =
-    maskStore.get(editingMaskId) ?? BUILTIN_MASK_STORE.get(editingMaskId);
+  const editingMask = maskStore.get(editingMaskId) ?? BUILTIN_MASK_STORE.get(editingMaskId);
   const closeMaskModal = () => setEditingMaskId(undefined);
 
   const downloadAll = () => {
@@ -258,60 +243,44 @@ export function MaskPage() {
           }
         }
       } catch {
-        console.log('importFromFile')
+        console.log('importFromFile');
       }
     });
   };
 
   return (
-    <div>
-      <div className={styles["mask-page"]}>
+    <>
+      <div className={styles['mask-page']}>
         <div className="window-header">
           <div className="window-header-title">
-            <div className="window-header-main-title">
-              {Locale.Mask.Page.Title}
-            </div>
-            <div className="window-header-submai-title">
-              {Locale.Mask.Page.SubTitle(allMasks.length)}
-            </div>
+            <div className="window-header-main-title">{Locale.Mask.Page.Title}</div>
+            <div className="window-header-submai-title">{Locale.Mask.Page.SubTitle(allMasks.length)}</div>
           </div>
 
           <div className="window-actions">
             <div className="window-action-button">
-              <IconButton
-                icon={<DownloadIcon />}
-                bordered
-                onClick={downloadAll}
-              />
+              <IconButton icon={<DownloadIcon />} bordered onClick={downloadAll} />
             </div>
             <div className="window-action-button">
-              <IconButton
-                icon={<UploadIcon />}
-                bordered
-                onClick={() => importFromFile()}
-              />
+              <IconButton icon={<UploadIcon />} bordered onClick={() => importFromFile()} />
             </div>
             <div className="window-action-button">
-              <IconButton
-                icon={<CloseIcon />}
-                bordered
-                onClick={() => navigate(-1)}
-              />
+              <IconButton icon={<CloseIcon />} bordered onClick={() => navigate(-1)} />
             </div>
           </div>
         </div>
 
-        <div className={styles["mask-page-body"]}>
-          <div className={styles["mask-filter"]}>
+        <div className={styles['mask-page-body']}>
+          <div className={styles['mask-filter']}>
             <input
               type="text"
-              className={styles["search-bar"]}
+              className={styles['search-bar']}
               placeholder={Locale.Mask.Page.Search}
               autoFocus
               onInput={(e) => onSearch(e.currentTarget.value)}
             />
             <Select
-              className={styles["mask-filter-lang"]}
+              className={styles['mask-filter-lang']}
               value={filterLang ?? Locale.Settings.Lang.All}
               onChange={(e) => {
                 const value = e.currentTarget.value;
@@ -333,7 +302,7 @@ export function MaskPage() {
             </Select>
 
             <IconButton
-              className={styles["mask-create"]}
+              className={styles['mask-create']}
               icon={<AddIcon />}
               text={Locale.Mask.Page.Create}
               bordered
@@ -346,19 +315,21 @@ export function MaskPage() {
 
           <div>
             {masks.map((m) => (
-              <div className={styles["mask-item"]} key={m.id}>
-                <div className={styles["mask-header"]}>
-                  <div className={styles["mask-icon"]}>
+              <div className={styles['mask-item']} key={m.id}>
+                <div className={styles['mask-header']}>
+                  <div className={styles['mask-icon']}>
                     <MaskAvatar mask={m} />
                   </div>
-                  <div className={styles["mask-title"]}>
-                    <div className={styles["mask-name"]}>{m.name}</div>
-                    <div className={styles["mask-info"] + " one-line"}>
-                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${m.modelConfig.model}`}
+                  <div className={styles['mask-title']}>
+                    <div className={styles['mask-name']}>{m.name}</div>
+                    <div className={styles['mask-info'] + ' one-line'}>
+                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${
+                        m.modelConfig.model
+                      }`}
                     </div>
                   </div>
                 </div>
-                <div className={styles["mask-actions"]}>
+                <div className={styles['mask-actions']}>
                   <IconButton
                     icon={<AddIcon />}
                     text={Locale.Mask.Item.Chat}
@@ -409,12 +380,7 @@ export function MaskPage() {
                 text={Locale.Mask.EditModal.Download}
                 key="export"
                 bordered
-                onClick={() =>
-                  downloadAs(
-                    JSON.stringify(editingMask),
-                    `${editingMask.name}.json`,
-                  )
-                }
+                onClick={() => downloadAs(JSON.stringify(editingMask), `${editingMask.name}.json`)}
               />,
               <IconButton
                 key="copy"
@@ -431,14 +397,13 @@ export function MaskPage() {
           >
             <MaskConfig
               mask={editingMask}
-              updateMask={(updater) =>
-                maskStore.update(editingMaskId!, updater)
-              }
+              updateMask={(updater) => maskStore.update(editingMaskId!, updater)}
               readonly={editingMask.builtin}
             />
           </Modal>
         </div>
       )}
-    </div>
+    </>
   );
 }
+export default MaskPage;
