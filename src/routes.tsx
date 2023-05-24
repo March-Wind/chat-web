@@ -6,6 +6,7 @@ import { Path } from '@/constant';
 // import { Chat } from './pages/chat';
 import RenameIcon from '@/assets/icons/rename.svg';
 const Chat = lazy(() => import('./pages/chat/index'));
+const Chat2 = lazy(() => import('./pages/chat2/index'));
 const Settings = lazy(() => import('./pages/settings/index'));
 const NewChat = lazy(() => import('./pages/new-chat/index'));
 const MaskPage = lazy(() => import('./pages/mask/index'));
@@ -64,6 +65,14 @@ const RoutesCom = () => {
         element={
           <Suspense>
             <Settings />
+          </Suspense>
+        }
+      />
+      <Route
+        path={'/chat2'}
+        element={
+          <Suspense>
+            <Chat2 />
           </Suspense>
         }
       />

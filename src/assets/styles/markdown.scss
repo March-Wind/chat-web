@@ -1,93 +1,93 @@
 @mixin light {
   color-scheme: light;
-  --color-prettylights-syntax-comment: #6e7781;
-  --color-prettylights-syntax-constant: #0550ae;
-  --color-prettylights-syntax-entity: #8250df;
-  --color-prettylights-syntax-storage-modifier-import: #24292f;
+  --color-prettylights-syntax-comment: #6E7781;
+  --color-prettylights-syntax-constant: #0550AE;
+  --color-prettylights-syntax-entity: #8250DF;
+  --color-prettylights-syntax-storage-modifier-import: #24292F;
   --color-prettylights-syntax-entity-tag: #116329;
-  --color-prettylights-syntax-keyword: #cf222e;
-  --color-prettylights-syntax-string: #0a3069;
+  --color-prettylights-syntax-keyword: #CF222E;
+  --color-prettylights-syntax-string: #0A3069;
   --color-prettylights-syntax-variable: #953800;
-  --color-prettylights-syntax-brackethighlighter-unmatched: #82071e;
-  --color-prettylights-syntax-invalid-illegal-text: #f6f8fa;
-  --color-prettylights-syntax-invalid-illegal-bg: #82071e;
-  --color-prettylights-syntax-carriage-return-text: #f6f8fa;
-  --color-prettylights-syntax-carriage-return-bg: #cf222e;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #82071E;
+  --color-prettylights-syntax-invalid-illegal-text: #F6F8FA;
+  --color-prettylights-syntax-invalid-illegal-bg: #82071E;
+  --color-prettylights-syntax-carriage-return-text: #F6F8FA;
+  --color-prettylights-syntax-carriage-return-bg: #CF222E;
   --color-prettylights-syntax-string-regexp: #116329;
-  --color-prettylights-syntax-markup-list: #3b2300;
-  --color-prettylights-syntax-markup-heading: #0550ae;
-  --color-prettylights-syntax-markup-italic: #24292f;
-  --color-prettylights-syntax-markup-bold: #24292f;
-  --color-prettylights-syntax-markup-deleted-text: #82071e;
-  --color-prettylights-syntax-markup-deleted-bg: #ffebe9;
+  --color-prettylights-syntax-markup-list: #3B2300;
+  --color-prettylights-syntax-markup-heading: #0550AE;
+  --color-prettylights-syntax-markup-italic: #24292F;
+  --color-prettylights-syntax-markup-bold: #24292F;
+  --color-prettylights-syntax-markup-deleted-text: #82071E;
+  --color-prettylights-syntax-markup-deleted-bg: #FFEBE9;
   --color-prettylights-syntax-markup-inserted-text: #116329;
-  --color-prettylights-syntax-markup-inserted-bg: #dafbe1;
+  --color-prettylights-syntax-markup-inserted-bg: #DAFBE1;
   --color-prettylights-syntax-markup-changed-text: #953800;
-  --color-prettylights-syntax-markup-changed-bg: #ffd8b5;
-  --color-prettylights-syntax-markup-ignored-text: #eaeef2;
-  --color-prettylights-syntax-markup-ignored-bg: #0550ae;
-  --color-prettylights-syntax-meta-diff-range: #8250df;
-  --color-prettylights-syntax-brackethighlighter-angle: #57606a;
-  --color-prettylights-syntax-sublimelinter-gutter-mark: #8c959f;
-  --color-prettylights-syntax-constant-other-reference-link: #0a3069;
-  --color-fg-default: #24292f;
-  --color-fg-muted: #57606a;
-  --color-fg-subtle: #6e7781;
+  --color-prettylights-syntax-markup-changed-bg: #FFD8B5;
+  --color-prettylights-syntax-markup-ignored-text: #EAEEF2;
+  --color-prettylights-syntax-markup-ignored-bg: #0550AE;
+  --color-prettylights-syntax-meta-diff-range: #8250DF;
+  --color-prettylights-syntax-brackethighlighter-angle: #57606A;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #8C959F;
+  --color-prettylights-syntax-constant-other-reference-link: #0A3069;
+  --color-fg-default: #24292F;
+  --color-fg-muted: #57606A;
+  --color-fg-subtle: #6E7781;
   --color-canvas-default: transparent;
-  --color-canvas-subtle: #f6f8fa;
-  --color-border-default: #d0d7de;
+  --color-canvas-subtle: #F6F8FA;
+  --color-border-default: #D0D7DE;
   --color-border-muted: hsla(210, 18%, 87%, 1);
-  --color-neutral-muted: rgba(175, 184, 193, 0.2);
-  --color-accent-fg: #0969da;
-  --color-accent-emphasis: #0969da;
-  --color-attention-subtle: #fff8c5;
-  --color-danger-fg: #cf222e;
+  --color-neutral-muted: rgba(175, 184, 193, .2);
+  --color-accent-fg: #0969DA;
+  --color-accent-emphasis: #0969DA;
+  --color-attention-subtle: #FFF8C5;
+  --color-danger-fg: #CF222E;
 }
 
 @mixin dark {
   color-scheme: dark;
-  --color-prettylights-syntax-comment: #8b949e;
-  --color-prettylights-syntax-constant: #79c0ff;
-  --color-prettylights-syntax-entity: #d2a8ff;
-  --color-prettylights-syntax-storage-modifier-import: #c9d1d9;
-  --color-prettylights-syntax-entity-tag: #7ee787;
-  --color-prettylights-syntax-keyword: #ff7b72;
-  --color-prettylights-syntax-string: #a5d6ff;
-  --color-prettylights-syntax-variable: #ffa657;
-  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
-  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
-  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
-  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
-  --color-prettylights-syntax-carriage-return-bg: #b62324;
-  --color-prettylights-syntax-string-regexp: #7ee787;
-  --color-prettylights-syntax-markup-list: #f2cc60;
-  --color-prettylights-syntax-markup-heading: #1f6feb;
-  --color-prettylights-syntax-markup-italic: #c9d1d9;
-  --color-prettylights-syntax-markup-bold: #c9d1d9;
-  --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
-  --color-prettylights-syntax-markup-deleted-bg: #67060c;
-  --color-prettylights-syntax-markup-inserted-text: #aff5b4;
-  --color-prettylights-syntax-markup-inserted-bg: #033a16;
-  --color-prettylights-syntax-markup-changed-text: #ffdfb6;
-  --color-prettylights-syntax-markup-changed-bg: #5a1e02;
-  --color-prettylights-syntax-markup-ignored-text: #c9d1d9;
-  --color-prettylights-syntax-markup-ignored-bg: #1158c7;
-  --color-prettylights-syntax-meta-diff-range: #d2a8ff;
-  --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
-  --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
-  --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
-  --color-fg-default: #c9d1d9;
-  --color-fg-muted: #8b949e;
-  --color-fg-subtle: #6e7681;
+  --color-prettylights-syntax-comment: #8B949E;
+  --color-prettylights-syntax-constant: #79C0FF;
+  --color-prettylights-syntax-entity: #D2A8FF;
+  --color-prettylights-syntax-storage-modifier-import: #C9D1D9;
+  --color-prettylights-syntax-entity-tag: #7EE787;
+  --color-prettylights-syntax-keyword: #FF7B72;
+  --color-prettylights-syntax-string: #A5D6FF;
+  --color-prettylights-syntax-variable: #FFA657;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #F85149;
+  --color-prettylights-syntax-invalid-illegal-text: #F0F6FC;
+  --color-prettylights-syntax-invalid-illegal-bg: #8E1519;
+  --color-prettylights-syntax-carriage-return-text: #F0F6FC;
+  --color-prettylights-syntax-carriage-return-bg: #B62324;
+  --color-prettylights-syntax-string-regexp: #7EE787;
+  --color-prettylights-syntax-markup-list: #F2CC60;
+  --color-prettylights-syntax-markup-heading: #1F6FEB;
+  --color-prettylights-syntax-markup-italic: #C9D1D9;
+  --color-prettylights-syntax-markup-bold: #C9D1D9;
+  --color-prettylights-syntax-markup-deleted-text: #FFDCD7;
+  --color-prettylights-syntax-markup-deleted-bg: #67060C;
+  --color-prettylights-syntax-markup-inserted-text: #AFF5B4;
+  --color-prettylights-syntax-markup-inserted-bg: #033A16;
+  --color-prettylights-syntax-markup-changed-text: #FFDFB6;
+  --color-prettylights-syntax-markup-changed-bg: #5A1E02;
+  --color-prettylights-syntax-markup-ignored-text: #C9D1D9;
+  --color-prettylights-syntax-markup-ignored-bg: #1158C7;
+  --color-prettylights-syntax-meta-diff-range: #D2A8FF;
+  --color-prettylights-syntax-brackethighlighter-angle: #8B949E;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #484F58;
+  --color-prettylights-syntax-constant-other-reference-link: #A5D6FF;
+  --color-fg-default: #C9D1D9;
+  --color-fg-muted: #8B949E;
+  --color-fg-subtle: #6E7681;
   --color-canvas-default: transparent;
-  --color-canvas-subtle: #161b22;
-  --color-border-default: #30363d;
-  --color-border-muted: #21262d;
-  --color-neutral-muted: rgba(110, 118, 129, 0.4);
-  --color-accent-fg: #58a6ff;
-  --color-accent-emphasis: #1f6feb;
-  --color-attention-subtle: rgba(187, 128, 9, 0.15);
-  --color-danger-fg: #f85149;
+  --color-canvas-subtle: #161B22;
+  --color-border-default: #30363D;
+  --color-border-muted: #21262D;
+  --color-neutral-muted: rgba(110, 118, 129, .4);
+  --color-accent-fg: #58A6FF;
+  --color-accent-emphasis: #1F6FEB;
+  --color-attention-subtle: rgba(187, 128, 9, .15);
+  --color-danger-fg: #F85149;
 }
 
 .markdown-body {
@@ -175,9 +175,9 @@
 }
 
 .markdown-body h1 {
-  margin: 0.67em 0;
+  margin: .67em 0;
   font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: 0.3em;
+  padding-bottom: .3em;
   font-size: 2em;
   border-bottom: 1px solid var(--color-border-muted);
 }
@@ -200,11 +200,11 @@
 }
 
 .markdown-body sub {
-  bottom: -0.25em;
+  bottom: -.25em;
 }
 
 .markdown-body sup {
-  top: -0.5em;
+  top: -.5em;
 }
 
 .markdown-body img {
@@ -231,7 +231,7 @@
   overflow: hidden;
   background: transparent;
   border-bottom: 1px solid var(--color-border-muted);
-  height: 0.25em;
+  height: .25em;
   padding: 0;
   margin: 24px 0;
   background-color: var(--color-border-default);
@@ -271,7 +271,7 @@
 
 .markdown-body ::-webkit-input-placeholder {
   color: inherit;
-  opacity: 0.54;
+  opacity: .54;
 }
 
 .markdown-body ::-webkit-file-upload-button {
@@ -384,7 +384,7 @@
 
 .markdown-body h2 {
   font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: 0.3em;
+  padding-bottom: .3em;
   font-size: 1.5em;
   border-bottom: 1px solid var(--color-border-muted);
 }
@@ -401,12 +401,12 @@
 
 .markdown-body h5 {
   font-weight: var(--base-text-weight-semibold, 600);
-  font-size: 0.875em;
+  font-size: .875em;
 }
 
 .markdown-body h6 {
   font-weight: var(--base-text-weight-semibold, 600);
-  font-size: 0.85em;
+  font-size: .85em;
   color: var(--color-fg-muted);
 }
 
@@ -419,7 +419,7 @@
   margin: 0;
   padding: 0 1em;
   color: var(--color-fg-muted);
-  border-left: 0.25em solid var(--color-border-default);
+  border-left: .25em solid var(--color-border-default);
 }
 
 .markdown-body ul,
@@ -487,11 +487,11 @@
   content: "";
 }
 
-.markdown-body > *:first-child {
+.markdown-body-wrap > *:first-child {
   margin-top: 0 !important;
 }
 
-.markdown-body > *:last-child {
+.markdown-body-wrap > *:last-child {
   margin-bottom: 0 !important;
 }
 
@@ -576,7 +576,7 @@
 .markdown-body h5 code,
 .markdown-body h6 tt,
 .markdown-body h6 code {
-  padding: 0 0.2em;
+  padding: 0 .2em;
   font-size: inherit;
 }
 
@@ -647,7 +647,7 @@
 }
 
 .markdown-body li + li {
-  margin-top: 0.25em;
+  margin-top: .25em;
 }
 
 .markdown-body dl {
@@ -794,7 +794,7 @@
 
 .markdown-body code,
 .markdown-body tt {
-  padding: 0.2em 0.4em;
+  padding: .2em .4em;
   margin: 0;
   font-size: 85%;
   white-space: break-spaces;
@@ -1062,7 +1062,7 @@
   font-style: normal !important;
   font-weight: var(--base-text-weight-normal, 400);
   line-height: 1;
-  vertical-align: -0.075em;
+  vertical-align: -.075em;
 }
 
 .markdown-body g-emoji img {
@@ -1091,12 +1091,12 @@
 }
 
 .markdown-body .task-list-item-checkbox {
-  margin: 0 0.2em 0.25em -1.4em;
+  margin: 0 .2em .25em -1.4em;
   vertical-align: middle;
 }
 
 .markdown-body .contains-task-list:dir(rtl) .task-list-item-checkbox {
-  margin: 0 -1.6em 0.25em 0.2em;
+  margin: 0 -1.6em .25em .2em;
 }
 
 .markdown-body .contains-task-list {

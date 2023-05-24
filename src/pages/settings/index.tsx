@@ -237,7 +237,7 @@ function Settings() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log(222, config.submitKey);
   return (
     <>
       <div className="window-header">

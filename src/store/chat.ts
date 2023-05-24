@@ -1,18 +1,18 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { trimTopic } from "@/tools/utils";
+import { trimTopic } from '@/tools/utils';
 
-import Locale from "@/assets/locales";
-import { showToast } from "@/components/common/ui-lib/ui-lib";
-import { ModelType } from "./config";
-import { createEmptyMask, Mask } from "./mask";
-import { StoreKey } from "../constant";
-import { RequestMessage } from "@/types";
+import Locale from '@/assets/locales';
+import { showToast } from '@/components/common/ui-lib/ui-lib';
+import { ModelType } from './config';
+import { createEmptyMask, Mask } from './mask';
+import { StoreKey } from '../constant';
+import { RequestMessage } from '@/types';
+import { chat } from '@/apis';
 // import { api, RequestMessage } from "../client/api";
 // import { ChatControllerPool } from "../client/controller";
 // import { prettyObject } from "../utils/format";
-
 
 // export const ROLES = ["system", "user", "assistant"] as const;
 // export type MessageRole = (typeof ROLES)[number];
@@ -32,8 +32,8 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
     id: Date.now(),
     date: new Date().toLocaleString(),
-    role: "user",
-    content: "",
+    role: 'user',
+    content: '',
     ...override,
   };
 }
@@ -60,15 +60,16 @@ export interface ChatSession {
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 export const BOT_HELLO: ChatMessage = createMessage({
-  role: "assistant",
+  role: 'assistant',
   content: Locale.Store.BotHello,
 });
 
 function createEmptySession(): ChatSession {
+  createEmptyMask();
   return {
     id: Date.now() + Math.random(),
     topic: DEFAULT_TOPIC,
-    memoryPrompt: "",
+    memoryPrompt: '',
     messages: [],
     stat: {
       tokenCount: 0,
@@ -96,11 +97,7 @@ interface ChatStore {
   summarizeSession: () => void;
   updateStat: (message: ChatMessage) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
-  updateMessage: (
-    sessionIndex: number,
-    messageIndex: number,
-    updater: (message?: ChatMessage) => void,
-  ) => void;
+  updateMessage: (sessionIndex: number, messageIndex: number, updater: (message?: ChatMessage) => void) => void;
   resetSession: () => void;
   getMessagesWithMemory: () => ChatMessage[];
   getMemoryPrompt: () => ChatMessage;
@@ -184,10 +181,7 @@ export const useChatStore = create<ChatStore>()(
         sessions.splice(index, 1);
 
         const currentIndex = get().currentSessionIndex;
-        let nextIndex = Math.min(
-          currentIndex - Number(index < currentIndex),
-          sessions.length - 1,
-        );
+        let nextIndex = Math.min(currentIndex - Number(index < currentIndex), sessions.length - 1);
 
         if (deletingLastSession) {
           nextIndex = 0;
@@ -244,32 +238,31 @@ export const useChatStore = create<ChatStore>()(
         const modelConfig = session.mask.modelConfig;
 
         const userMessage: ChatMessage = createMessage({
-          role: "user",
+          role: 'user',
           content,
         });
 
         const botMessage: ChatMessage = createMessage({
-          role: "assistant",
+          role: 'assistant',
           streaming: true,
           id: userMessage.id! + 1,
           model: modelConfig.model,
         });
 
         const systemInfo = createMessage({
-          role: "system",
-          content: `IMPORTANT: You are a virtual assistant powered by the ${modelConfig.model} model, now time is ${new Date().toLocaleString()}}`,
+          role: 'system',
+          content: `IMPORTANT: You are a virtual assistant powered by the ${
+            modelConfig.model
+          } model, now time is ${new Date().toLocaleString()}}`,
           id: botMessage.id! + 1,
         });
 
         // get recent messages
         const systemMessages = [systemInfo];
         const recentMessages = get().getMessagesWithMemory();
-        const sendMessages = systemMessages.concat(
-          recentMessages.concat(userMessage),
-        );
+        const sendMessages = systemMessages.concat(recentMessages.concat(userMessage));
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
-
         // save user's and bot's message
         get().updateCurrentSession((session) => {
           session.messages.push(userMessage);
@@ -277,7 +270,39 @@ export const useChatStore = create<ChatStore>()(
         });
 
         // make request
-        console.log("[User Input] ", sendMessages);
+        console.log('[User Input] ', content, sendMessages);
+
+        // const _code = '当然，以下是一个简单的 JavaScript sum 函数的示例：\n\n```javascript\nfunction sum(numbers) {\n  let total = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    total += numbers[i];\n  }\n  return total;\n}\n```\n\n这个函数接受一个数字数组作为参数，并返回它们的总和。你可以像这样调用它：\n\n```javascript\nconst myArray = [1, 2, 3, 4, 5];\nconsole.log(sum(myArray)); // 输出 15\n```'
+        // botMessage.streaming = false;
+        // botMessage.content = _code;
+        // get().onNewMessage(botMessage);
+        // set(() => ({}));
+        chat({
+          msg: content,
+          onMessage(msg) {
+            let _msg = [];
+            try {
+              _msg = JSON.parse(msg);
+            } catch (error) {
+              console.log(error);
+            }
+            const _content = _msg
+              .map((item: any) => {
+                return item.choices[0].message.content;
+              })
+              .filter((item: any) => item !== undefined);
+            botMessage.streaming = true;
+            console.log(_content);
+            botMessage.content += _content.join('');
+            set(() => ({}));
+          },
+          onFinish() {
+            botMessage.streaming = false;
+            // botMessage.content = message;
+            get().onNewMessage(botMessage);
+            set(() => ({}));
+          },
+        });
         // to do 请求
         // api.llm.chat({
         //   messages: sendMessages,
@@ -332,12 +357,9 @@ export const useChatStore = create<ChatStore>()(
         const session = get().currentSession();
 
         return {
-          role: "system",
-          content:
-            session.memoryPrompt.length > 0
-              ? Locale.Store.Prompt.History(session.memoryPrompt)
-              : "",
-          date: "",
+          role: 'system',
+          content: session.memoryPrompt.length > 0 ? Locale.Store.Prompt.History(session.memoryPrompt) : '',
+          date: '',
         } as ChatMessage;
       },
 
@@ -350,34 +372,20 @@ export const useChatStore = create<ChatStore>()(
         const context = session.mask.context.slice();
 
         // long term memory
-        if (
-          modelConfig.sendMemory &&
-          session.memoryPrompt &&
-          session.memoryPrompt.length > 0
-        ) {
+        if (modelConfig.sendMemory && session.memoryPrompt && session.memoryPrompt.length > 0) {
           const memoryPrompt = get().getMemoryPrompt();
           context.push(memoryPrompt);
         }
 
         // get short term and unmemoried long term memory
-        const shortTermMemoryMessageIndex = Math.max(
-          0,
-          n - modelConfig.historyMessageCount,
-        );
+        const shortTermMemoryMessageIndex = Math.max(0, n - modelConfig.historyMessageCount);
         const longTermMemoryMessageIndex = session.lastSummarizeIndex;
-        const oldestIndex = Math.max(
-          shortTermMemoryMessageIndex,
-          longTermMemoryMessageIndex,
-        );
+        const oldestIndex = Math.max(shortTermMemoryMessageIndex, longTermMemoryMessageIndex);
         const threshold = modelConfig.compressMessageLengthThreshold;
 
         // get recent messages as many as possible
         const reversedRecentMessages = [];
-        for (
-          let i = n - 1, count = 0;
-          i >= oldestIndex && count < threshold;
-          i -= 1
-        ) {
+        for (let i = n - 1, count = 0; i >= oldestIndex && count < threshold; i -= 1) {
           const msg = messages[i];
           if (!msg || msg.isError) continue;
           count += msg.content.length;
@@ -390,11 +398,7 @@ export const useChatStore = create<ChatStore>()(
         return recentMessages;
       },
 
-      updateMessage(
-        sessionIndex: number,
-        messageIndex: number,
-        updater: (message?: ChatMessage) => void,
-      ) {
+      updateMessage(sessionIndex: number, messageIndex: number, updater: (message?: ChatMessage) => void) {
         const sessions = get().sessions;
         const session = sessions.at(sessionIndex);
         const messages = session?.messages;
@@ -405,7 +409,7 @@ export const useChatStore = create<ChatStore>()(
       resetSession() {
         get().updateCurrentSession((session) => {
           session.messages = [];
-          session.memoryPrompt = "";
+          session.memoryPrompt = '';
         });
       },
 
@@ -417,13 +421,10 @@ export const useChatStore = create<ChatStore>()(
 
         // should summarize topic after chating more than 50 words
         const SUMMARIZE_MIN_LEN = 50;
-        if (
-          session.topic === DEFAULT_TOPIC &&
-          countMessages(cleanMessages) >= SUMMARIZE_MIN_LEN
-        ) {
+        if (session.topic === DEFAULT_TOPIC && countMessages(cleanMessages) >= SUMMARIZE_MIN_LEN) {
           const topicMessages = cleanMessages.concat(
             createMessage({
-              role: "user",
+              role: 'user',
               content: Locale.Store.Prompt.Topic,
             }),
           );
@@ -443,17 +444,13 @@ export const useChatStore = create<ChatStore>()(
         }
 
         const modelConfig = session.mask.modelConfig;
-        let toBeSummarizedMsgs = cleanMessages.slice(
-          session.lastSummarizeIndex,
-        );
+        let toBeSummarizedMsgs = cleanMessages.slice(session.lastSummarizeIndex);
 
         const historyMsgLength = countMessages(toBeSummarizedMsgs);
 
         if (historyMsgLength > modelConfig?.max_tokens ?? 4000) {
           const n = toBeSummarizedMsgs.length;
-          toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
-            Math.max(0, n - modelConfig.historyMessageCount),
-          );
+          toBeSummarizedMsgs = toBeSummarizedMsgs.slice(Math.max(0, n - modelConfig.historyMessageCount));
         }
 
         // add memory prompt
@@ -462,16 +459,13 @@ export const useChatStore = create<ChatStore>()(
         const lastSummarizeIndex = session.messages.length;
 
         console.log(
-          "[Chat History] ",
+          '[Chat History] ',
           toBeSummarizedMsgs,
           historyMsgLength,
           modelConfig.compressMessageLengthThreshold,
         );
 
-        if (
-          historyMsgLength > modelConfig.compressMessageLengthThreshold &&
-          session.mask.modelConfig.sendMemory
-        ) {
+        if (historyMsgLength > modelConfig.compressMessageLengthThreshold && session.mask.modelConfig.sendMemory) {
           // to do 请求
           // api.llm.chat({
           //   messages: toBeSummarizedMsgs.concat({

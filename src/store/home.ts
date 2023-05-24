@@ -29,7 +29,6 @@ const counterSlice = createSlice({
       return state;
     },
     setApiData: (state, action: PayloadAction<string>) => {
-      debugger;
       return {
         ...state,
         apiData: action.payload,

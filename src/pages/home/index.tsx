@@ -15,7 +15,8 @@ function App(props: HomeStore & HomeDispatch) {
   const navigate = useNavigate();
   return (
     <div className={cn.home_box}>
-      <h1 onClick={() => navigate('/chat')}>去聊天</h1>
+      <h1 onClick={() => navigate('/chat')}>去聊天122232123212312</h1>
+      <h1 onClick={() => navigate('/chat')}>去聊天122232123212312</h1>
       <div>count:{value}</div>
       <div onClick={increment}>+</div>
       <div onClick={decrement}>-</div>
@@ -23,7 +24,7 @@ function App(props: HomeStore & HomeDispatch) {
         标签引用图片
         <img className={cn.img} src={image} alt="" />
       </div>
-      <div className={cn.div_bg}>背景引用图片</div>
+      <div className={cn.div_bg}>背景引用图片1</div>
     </div>
   );
 }

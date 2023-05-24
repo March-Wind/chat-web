@@ -1,5 +1,9 @@
-// 用ts写一个sum函数
-const fetchStream = (url: string, params: any) => {
+interface Params extends RequestInit {
+  onmessage: (msg: string) => void;
+  onclose: () => void;
+}
+const fetchStream = (url: string, params: Params) => {
+  // // to do debugger时，导致消息堆积在一起，就不能用JSON.parse去解析了
   const { onmessage, onclose, ...otherParams } = params;
 
   const push = async (controller: any, reader: any) => {
@@ -29,18 +33,3 @@ const fetchStream = (url: string, params: any) => {
 };
 
 export default fetchStream;
-
-
-// fetchStream('http://127.0.0.1:4001/playchat', {
-//   method: 'POST',
-//   body: JSON.stringify({ msg: '你好' }),
-//   headers: {
-//     accept: 'text/event-stream',
-//     'Content-Type': 'application/json',
-//   },
-//   onmessage: (res: any) => {
-//     // todo
-
-//     console.log(11, res);
-//   },
-// });
