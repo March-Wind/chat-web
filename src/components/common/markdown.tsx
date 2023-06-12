@@ -1,12 +1,12 @@
 import React, { FC, useRef, useState, RefObject, useEffect } from 'react';
 import { marked } from 'marked';
-import type { Slugger } from 'marked';
+// import type { Slugger } from 'marked';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import { copyToClipboard } from '@/tools/utils';
-import mermaid from 'mermaid';
+// import mermaid from 'mermaid';
 import LoadingIcon from '@/assets/icons/three-dots.svg';
-import copy2 from '@/assets/icons/copy2.svg';
+// import copy2 from '@/assets/icons/copy2.svg';
 
 const MarkdownContent: FC<{ code: string }> = (props) => {
   const { code } = props;
@@ -25,6 +25,9 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
       renderer: new marked.Renderer(),
       highlight: function (code, _lang) {
         // const codeStr = hljs.highlightAuto(code).value;
+        if (!code && !_lang) {
+          return ''
+        }
         const codeStr = hljs.highlight(code, { language: _lang }).value;
         // const codeWrap = `
         //   <div class="code-wrap">
@@ -39,7 +42,7 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
         //   </div>
         // `
         // return codeWrap;
-        console.log(22, codeStr);
+        // console.log(22, codeStr);
 
         return codeStr;
       },
@@ -109,8 +112,8 @@ function Markdown(
         height: !inView.current && renderedHeight.current > 0 ? renderedHeight.current : 'auto',
       }}
       ref={mdRef}
-      // onContextMenu={props.onContextMenu}
-      // onDoubleClickCapture={props.onDoubleClickCapture}
+    // onContextMenu={props.onContextMenu}
+    // onDoubleClickCapture={props.onDoubleClickCapture}
     >
       {inView.current &&
         (props.loading ? (

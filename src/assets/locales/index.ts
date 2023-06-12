@@ -15,15 +15,15 @@ export type { LocaleType } from "./cn";
 export const AllLangs = [
   "en",
   "cn",
-  "tw",
-  "es",
-  "it",
-  "tr",
-  "jp",
-  "de",
-  "vi",
-  "ru",
-  "cs",
+  // "tw",
+  // "es",
+  // "it",
+  // "tr",
+  // "jp",
+  // "de",
+  // "vi",
+  // "ru",
+  // "cs",
 ] as const;
 export type Lang = (typeof AllLangs)[number];
 
@@ -41,7 +41,9 @@ function getItem(key: string) {
 function setItem(key: string, value: string) {
   try {
     localStorage.setItem(key, value);
-  } catch {}
+  } catch {
+    console.log('setItem函数报错')
+  }
 }
 
 function getLanguage() {

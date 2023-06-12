@@ -3,7 +3,10 @@ import { ALL_MODELS, ModalConfigValidator, ModelConfig } from '@/store/config';
 
 import Locale from '@/assets/locales';
 import { InputRange } from '@/components/common/input-range';
-import { List, ListItem, Select } from '@/components/common/ui-lib/ui-lib';
+import {
+  // List, 
+  ListItem, Select
+} from '@/components/common/ui-lib/ui-lib';
 
 export function ModelConfigList(props: {
   modelConfig: ModelConfig;
@@ -41,6 +44,7 @@ export function ModelConfigList(props: {
       </ListItem>
       <ListItem title={Locale.Settings.MaxTokens.Title} subTitle={Locale.Settings.MaxTokens.SubTitle}>
         <input
+          className='custom_input'
           type="number"
           min={100}
           max={32000}
@@ -80,6 +84,7 @@ export function ModelConfigList(props: {
 
       <ListItem title={Locale.Settings.CompressThreshold.Title} subTitle={Locale.Settings.CompressThreshold.SubTitle}>
         <input
+          className='custom_input'
           type="number"
           min={500}
           max={4000}
@@ -92,6 +97,7 @@ export function ModelConfigList(props: {
       <ListItem title={Locale.Memory.Title} subTitle={Locale.Memory.Send}>
         <input
           type="checkbox"
+          className='custom_input'
           checked={props.modelConfig.sendMemory}
           onChange={(e) => props.updateConfig((config) => (config.sendMemory = e.currentTarget.checked))}
         ></input>

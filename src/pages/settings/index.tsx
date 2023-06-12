@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, HTMLProps, useRef } from 'react';
+import React, { useState, useEffect, } from 'react';
 
 import styles from './settings.module.scss';
 
@@ -10,7 +10,7 @@ import ClearIcon from '@/assets/icons/clear.svg';
 import LoadingIcon from '@/assets/icons/three-dots.svg';
 import EditIcon from '@/assets/icons/edit.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
-import { Input, List, ListItem, Modal, PasswordInput, Popover, Select } from '@/components/common/ui-lib/ui-lib';
+import { Input, List, ListItem, Modal, Popover, Select } from '@/components/common/ui-lib/ui-lib';
 import { ModelConfigList } from '@/pages/mask/model-config';
 
 import { IconButton } from '@/components/common/button';
@@ -24,7 +24,7 @@ import {
 import Locale, { AllLangs, changeLang, getLang } from '@/assets/locales';
 import { copyToClipboard } from '@/tools/utils';
 // import Link from "next/link";
-import { Path, UPDATE_URL } from '@/constant';
+import { Path } from '@/constant';
 import { Prompt, SearchService, usePromptStore } from '@/store/prompt';
 // import { ErrorBoundary } from "./error";
 import { InputRange } from '@/components/common/input-range';
@@ -47,13 +47,13 @@ function EditPromptModal(props: { id: number; onClose: () => void }) {
             type="text"
             value={prompt.title}
             readOnly={!prompt.isUser}
-            className={styles['edit-prompt-title']}
+            className={styles['edit-prompt-title'] + ' custom_input'}
             onInput={(e) => promptStore.update(props.id, (prompt) => (prompt.title = e.currentTarget.value))}
           ></input>
           <Input
             value={prompt.content}
             readOnly={!prompt.isUser}
-            className={styles['edit-prompt-content']}
+            className={styles['edit-prompt-content'] + ' custom_input'}
             rows={10}
             onInput={(e) => promptStore.update(props.id, (prompt) => (prompt.content = e.currentTarget.value))}
           ></Input>
@@ -106,14 +106,14 @@ function UserPromptModal(props: { onClose?: () => void }) {
         <div className={styles['user-prompt-modal']}>
           <input
             type="text"
-            className={styles['user-prompt-search']}
+            className={styles['user-prompt-search'] + ' custom_input'}
             placeholder={Locale.Settings.Prompt.Modal.Search}
             value={searchInput}
             onInput={(e) => setSearchInput(e.currentTarget.value)}
           ></input>
 
           <div className={styles['user-prompt-list']}>
-            {prompts.map((v, _) => (
+            {prompts.map((v) => (
               <div className={styles['user-prompt-item']} key={v.id ?? v.title}>
                 <div className={styles['user-prompt-header']}>
                   <div className={styles['user-prompt-title']}>{v.title}</div>
@@ -193,17 +193,17 @@ function Settings() {
     console.log('[Update] remote version ', new Date(+updateStore.remoteVersion).toLocaleString());
   }
 
-  const usage = {
-    used: updateStore.used,
-    subscription: updateStore.subscription,
-  };
-  const [loadingUsage, setLoadingUsage] = useState(false);
-  function checkUsage(force = false) {
-    setLoadingUsage(true);
-    updateStore.updateUsage(force).finally(() => {
-      setLoadingUsage(false);
-    });
-  }
+  // const usage = {
+  //   used: updateStore.used,
+  //   subscription: updateStore.subscription,
+  // };
+  // const [loadingUsage, setLoadingUsage] = useState(false);
+  // function checkUsage(force = false) {
+  //   setLoadingUsage(true);
+  //   updateStore.updateUsage(force).finally(() => {
+  //     setLoadingUsage(false);
+  //   });
+  // }
 
   // const accessStore = useAccessStore();
   // const enabledAccessControl = useMemo(
@@ -307,8 +307,8 @@ function Settings() {
               checkingUpdate
                 ? Locale.Settings.Update.IsChecking
                 : hasNewVersion
-                ? Locale.Settings.Update.FoundUpdate(remoteId ?? 'ERROR')
-                : Locale.Settings.Update.IsLatest
+                  ? Locale.Settings.Update.FoundUpdate(remoteId ?? 'ERROR')
+                  : Locale.Settings.Update.IsLatest
             }
           >
             {checkingUpdate ? (
@@ -388,6 +388,7 @@ function Settings() {
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
           >
             <input
+              className='custom_input'
               type="checkbox"
               checked={config.sendPreviewBubble}
               onChange={(e) => updateConfig((config) => (config.sendPreviewBubble = e.currentTarget.checked))}
@@ -396,6 +397,7 @@ function Settings() {
 
           <ListItem title={Locale.Settings.Mask.Title} subTitle={Locale.Settings.Mask.SubTitle}>
             <input
+              className='custom_input'
               type="checkbox"
               checked={!config.dontShowMaskSplashScreen}
               onChange={(e) => updateConfig((config) => (config.dontShowMaskSplashScreen = !e.currentTarget.checked))}
@@ -405,6 +407,7 @@ function Settings() {
         <List>
           <ListItem title={Locale.Settings.Prompt.Disable.Title} subTitle={Locale.Settings.Prompt.Disable.SubTitle}>
             <input
+              className='custom_input'
               type="checkbox"
               checked={config.disablePromptHint}
               onChange={(e) => updateConfig((config) => (config.disablePromptHint = e.currentTarget.checked))}

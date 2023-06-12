@@ -13,7 +13,7 @@ import EyeIcon from '@/assets/icons/eye.svg';
 import { Mask, useMaskStore } from '@/store/mask';
 import Locale from '@/assets/locales';
 import { useChatStore } from '@/store/chat';
-import { useAppConfig } from '@/hooks/useAppConfig';
+import { useAppConfig } from '@/store/config';
 import { MaskAvatar } from '@/pages/mask';
 import useCommand from '@/hooks/useCommand';
 

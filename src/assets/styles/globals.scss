@@ -5,14 +5,14 @@
   --theme: light;
 
   /* color */
-  --white: white;
+  --white: white; // contaner和按钮的背景色
   --black: rgb(48, 48, 48);
-  --gray: rgb(250, 250, 250);
-  --primary: rgb(29, 147, 171);
+  --gray: rgb(250, 250, 250); // body背景色
+  --primary: rgb(29, 147, 171); // 选中色彩
   --second: rgb(231, 248, 255);
   --hover-color: #F3F3F3;
   --bar-color: rgba(0, 0, 0, .1);
-  --theme-color: var(--gray);
+  --theme-color: var(--gray); // 手机浏览器的顶部状态栏、地址栏、导航工具栏等部分的颜色
 
   /* shadow */
   --shadow: 50px 50px 100px 10px rgb(0, 0, 0, .1);
@@ -26,9 +26,11 @@
   --theme: dark;
 
   /* color */
-  --white: rgb(30, 30, 30);
+  // --white: rgb(30, 30, 30);
+  --white: #141414;
+
   --black: rgb(187, 187, 187);
-  --gray: rgb(21, 21, 21);
+  --gray: rgb(0, 0, 0);
   --primary: rgb(29, 147, 171);
   --second: rgb(27 38 42);
   --hover-color: #323232;
@@ -39,7 +41,7 @@
 
   --theme-color: var(--gray);
 
-  div:not(.no-dark) > svg {
+  div:not(.no-dark)>svg {
     filter: invert(.5);
   }
 }
@@ -86,6 +88,7 @@
     @include dark;
   }
 }
+
 html {
   height: var(--full-height);
 
@@ -143,12 +146,12 @@ label {
   cursor: pointer;
 }
 
-input {
+input.custom_input {
   text-align: center;
   font-family: inherit;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"].custom_input {
   cursor: pointer;
   background-color: var(--white);
   color: var(--black);
@@ -162,7 +165,7 @@ input[type="checkbox"] {
   justify-content: center;
 }
 
-input[type="checkbox"]:checked::after {
+input[type="checkbox"].custom_input:checked::after {
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -171,7 +174,7 @@ input[type="checkbox"]:checked::after {
   border-radius: 2px;
 }
 
-input[type="range"] {
+input[type="range"].custom_input {
   appearance: none;
   background-color: var(--white);
   color: var(--black);
@@ -189,15 +192,15 @@ input[type="range"] {
   border: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type="range"].custom_input::-webkit-slider-thumb {
   @include thumb();
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type="range"].custom_input::-moz-range-thumb {
   @include thumb();
 }
 
-input[type="range"]::-ms-thumb {
+input[type="range"].custom_input::-ms-thumb {
   @include thumb();
 }
 
@@ -206,21 +209,21 @@ input[type="range"]::-ms-thumb {
   width: 24px;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
+input[type="range"].custom_input::-webkit-slider-thumb:hover {
   @include thumbHover();
 }
 
-input[type="range"]::-moz-range-thumb:hover {
+input[type="range"].custom_input::-moz-range-thumb:hover {
   @include thumbHover();
 }
 
-input[type="range"]::-ms-thumb:hover {
+input[type="range"].custom_input::-ms-thumb:hover {
   @include thumbHover();
 }
 
-input[type="number"],
-input[type="text"],
-input[type="password"] {
+input[type="number"].custom_input,
+input[type="text"].custom_input,
+input[type="password"].custom_input {
   appearance: none;
   border-radius: 10px;
   border: var(--border-in-light);
@@ -353,3 +356,28 @@ pre {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+// .ant-input:-internal-autofill-selected {
+//   background-color: red !important;
+//   background-image: none !important;
+//   color: #000 !important;
+// }
+
+/**
+ * 1. Remove the default white fill for Safari 10/11.
+ * 2. Remove the default autofill background color for Chrome.
+ * 3. Remove the autofill field text inside the select element.
+ */
+.ant-input:-webkit-autofill,
+.ant-input:-webkit-autofill:hover,
+.ant-input:-webkit-autofill:focus,
+.ant-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+  -webkit-text-fill-color: #000 !important;
+  // -webkit-transition-delay: 9999;
+  --webkit-background-clip: text;
+}
+
+// .ant-select-selection-item {
+//   background-color: transparent !important;
+// }

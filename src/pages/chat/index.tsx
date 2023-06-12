@@ -7,7 +7,7 @@ import ExportIcon from '@/assets/icons/share.svg';
 import ReturnIcon from '@/assets/icons/return.svg';
 import CopyIcon from '@/assets/icons/copy.svg';
 import DownloadIcon from '@/assets/icons/download.svg';
-import LoadingIcon from '@/assets/icons/three-dots.svg';
+// import LoadingIcon from '@/assets/icons/three-dots.svg';
 import PromptIcon from '@/assets/icons/prompt.svg';
 import MaskIcon from '@/assets/icons/mask.svg';
 import MaxIcon from '@/assets/icons/max.svg';
@@ -23,16 +23,19 @@ import Markdown from '@/components/common/markdown';
 import {
   ChatMessage,
   useChatStore,
-  BOT_HELLO,
+  // BOT_HELLO,
   createMessage,
   // useAccessStore,
 
   // useAppConfig,
   DEFAULT_TOPIC,
 } from '@/store/chat';
-import { Theme, SubmitKey } from '@/store/config';
-import { useAppConfig } from '@/hooks/useAppConfig';
-import { copyToClipboard, downloadAs, selectOrCopy, autoGrowTextArea, useMobileScreen } from '@/tools/utils';
+import { useAppConfig, Theme, SubmitKey } from '@/store/config';
+import {
+  copyToClipboard, downloadAs,
+  // selectOrCopy,
+  autoGrowTextArea, useMobileScreen
+} from '@/tools/utils';
 
 // import dynamic from "next/dynamic";
 
@@ -45,7 +48,10 @@ import styles from '@/app.module.scss';
 import chatStyle from './chat.module.scss';
 
 import { ListItem, Modal, showModal } from '@/components/common/ui-lib/ui-lib';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  // useLocation,
+  useNavigate
+} from 'react-router-dom';
 import { LAST_INPUT_KEY, Path } from '@/constant';
 import { Avatar } from '@/components/common/emoji';
 import { MaskAvatar, MaskConfig } from '@/pages/mask';
@@ -451,12 +457,12 @@ function Chat() {
       e.preventDefault();
     }
   };
-  const onRightClick = (e: any, message: ChatMessage) => {
-    // copy to clipboard
-    if (selectOrCopy(e.currentTarget, message.content)) {
-      e.preventDefault();
-    }
-  };
+  // const onRightClick = (e: any, message: ChatMessage) => {
+  //   // copy to clipboard
+  //   if (selectOrCopy(e.currentTarget, message.content)) {
+  //     e.preventDefault();
+  //   }
+  // };
 
   const findLastUserIndex = (messageId: number) => {
     // find last user input message and resend
@@ -513,27 +519,27 @@ function Chat() {
     .concat(
       isLoading
         ? [
-            {
-              ...createMessage({
-                role: 'assistant',
-                content: '……',
-              }),
-              preview: true,
-            },
-          ]
+          {
+            ...createMessage({
+              role: 'assistant',
+              content: '……',
+            }),
+            preview: true,
+          },
+        ]
         : [],
     )
     .concat(
       userInput.length > 0 && config.sendPreviewBubble
         ? [
-            {
-              ...createMessage({
-                role: 'user',
-                content: userInput,
-              }),
-              preview: true,
-            },
-          ]
+          {
+            ...createMessage({
+              role: 'user',
+              content: userInput,
+            }),
+            preview: true,
+          },
+        ]
         : [],
     );
 
@@ -620,74 +626,74 @@ function Chat() {
       >
         {messages && messages.length > 0
           ? messages.map((message, i) => {
-              const isUser = message.role === 'user';
-              // const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
-              const showActions = !isUser && !(message.preview || message.content.length === 0);
-              const showTyping = message.preview || message.streaming;
-              return (
-                <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
-                  <div className={styles['chat-message-container']}>
-                    <div className={styles['chat-message-avatar']}>
-                      {message.role === 'user' ? <Avatar avatar={config.avatar} /> : <MaskAvatar mask={session.mask} />}
-                    </div>
-                    {showTyping && <div className={styles['chat-message-status']}>{Locale.Chat.Typing}</div>}
-                    <div className={styles['chat-message-item']}>
-                      {showActions && (
-                        <div className={styles['chat-message-top-actions']}>
-                          {message.streaming ? (
-                            <div
-                              className={styles['chat-message-top-action']}
-                              onClick={() => onUserStop(message.id ?? i)}
-                            >
-                              {Locale.Chat.Actions.Stop}
-                            </div>
-                          ) : (
-                            <>
-                              <div
-                                className={styles['chat-message-top-action']}
-                                onClick={() => onDelete(message.id ?? i)}
-                              >
-                                {Locale.Chat.Actions.Delete}
-                              </div>
-                              <div
-                                className={styles['chat-message-top-action']}
-                                onClick={() => onResend(message.id ?? i)}
-                              >
-                                {Locale.Chat.Actions.Retry}
-                              </div>
-                            </>
-                          )}
-
+            const isUser = message.role === 'user';
+            // const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
+            const showActions = !isUser && !(message.preview || message.content.length === 0);
+            const showTyping = message.preview || message.streaming;
+            return (
+              <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
+                <div className={styles['chat-message-container']}>
+                  <div className={styles['chat-message-avatar']}>
+                    {message.role === 'user' ? <Avatar avatar={config.avatar} /> : <MaskAvatar mask={session.mask} />}
+                  </div>
+                  {showTyping && <div className={styles['chat-message-status']}>{Locale.Chat.Typing}</div>}
+                  <div className={styles['chat-message-item']}>
+                    {showActions && (
+                      <div className={styles['chat-message-top-actions']}>
+                        {message.streaming ? (
                           <div
                             className={styles['chat-message-top-action']}
-                            onClick={() => copyToClipboard(message.content)}
+                            onClick={() => onUserStop(message.id ?? i)}
                           >
-                            {Locale.Chat.Actions.Copy}
+                            {Locale.Chat.Actions.Stop}
                           </div>
+                        ) : (
+                          <>
+                            <div
+                              className={styles['chat-message-top-action']}
+                              onClick={() => onDelete(message.id ?? i)}
+                            >
+                              {Locale.Chat.Actions.Delete}
+                            </div>
+                            <div
+                              className={styles['chat-message-top-action']}
+                              onClick={() => onResend(message.id ?? i)}
+                            >
+                              {Locale.Chat.Actions.Retry}
+                            </div>
+                          </>
+                        )}
+
+                        <div
+                          className={styles['chat-message-top-action']}
+                          onClick={() => copyToClipboard(message.content)}
+                        >
+                          {Locale.Chat.Actions.Copy}
                         </div>
-                      )}
-                      <Markdown
-                        content={message.content}
-                        loading={(message.preview || message.content.length === 0) && !isUser}
-                        // onContextMenu={(e) => onRightClick(e, message)}
-                        // onDoubleClickCapture={() => {
-                        //   if (!isMobileScreen) return;
-                        //   setUserInput(message.content);
-                        // }}
-                        fontSize={fontSize}
-                        parentRef={scrollRef}
-                        defaultShow={i >= messages.length - 10}
-                      />
-                    </div>
-                    {!isUser && !message.preview && (
-                      <div className={styles['chat-message-actions']}>
-                        <div className={styles['chat-message-action-date']}>{message.date.toLocaleString()}</div>
                       </div>
                     )}
+                    <Markdown
+                      content={message.content}
+                      loading={(message.preview || message.content.length === 0) && !isUser}
+                      // onContextMenu={(e) => onRightClick(e, message)}
+                      // onDoubleClickCapture={() => {
+                      //   if (!isMobileScreen) return;
+                      //   setUserInput(message.content);
+                      // }}
+                      fontSize={fontSize}
+                      parentRef={scrollRef}
+                      defaultShow={i >= messages.length - 10}
+                    />
                   </div>
+                  {!isUser && !message.preview && (
+                    <div className={styles['chat-message-actions']}>
+                      <div className={styles['chat-message-action-date']}>{message.date.toLocaleString()}</div>
+                    </div>
+                  )}
                 </div>
-              );
-            })
+              </div>
+            );
+          })
           : null}
       </div>
 

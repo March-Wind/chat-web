@@ -240,7 +240,7 @@ export function PasswordInput(props: HTMLProps<HTMLInputElement>) {
       <input
         {...props}
         type={visible ? "text" : "password"}
-        className={"password-input"}
+        className={"password-input custom_input"}
       />
     </div>
   );
@@ -250,7 +250,7 @@ export function Select(
   props: React.DetailedHTMLProps<
     React.SelectHTMLAttributes<HTMLSelectElement>,
     HTMLSelectElement
-  >,
+  > & { className?: string },
 ) {
   const { className, children, ...otherProps } = props;
   return (
@@ -258,6 +258,8 @@ export function Select(
       <select className={styles["select-with-icon-select"]} {...otherProps}>
         {children}
       </select>
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore */}
       <DownIcon className={styles["select-with-icon-icon"]} />
     </div>
   );

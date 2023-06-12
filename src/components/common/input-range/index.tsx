@@ -24,6 +24,7 @@ export function InputRange({
     <div className={styles["input-range"] + ` ${className ?? ""}`}>
       {title || value}
       <input
+        className="custom_input"
         type="range"
         title={title}
         value={value}

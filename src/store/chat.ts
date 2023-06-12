@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { trimTopic } from '@/tools/utils';
+// import { trimTopic } from '@/tools/utils';
 
 import Locale from '@/assets/locales';
 import { showToast } from '@/components/common/ui-lib/ui-lib';
@@ -83,6 +83,7 @@ function createEmptySession(): ChatSession {
 }
 
 interface ChatStore {
+  handleMesssge(msg: string): Record<string, any>[];
   sessions: ChatSession[];
   currentSessionIndex: number;
   globalId: number;
@@ -232,7 +233,24 @@ export const useChatStore = create<ChatStore>()(
         get().updateStat(message);
         get().summarizeSession();
       },
-
+      handleMesssge(message: string): Record<string, any>[] {
+        const result = message.split('\n\n').reduce((prev, current, currentIndex, array) => {
+          const len = prev.length;
+          const index = len;
+          const last = prev[index] || '';
+          const maybeJSON = last + current;
+          try {
+            const json = JSON.parse(maybeJSON);
+            prev[index] = json;
+          } catch (error) {
+            if (array.length - 1 !== currentIndex) {
+              prev[index] = (prev[index] || '') + current + '\n\n';
+            }
+          }
+          return prev;
+        }, [] as (string | Record<string, any> | Record<string, any>[])[]) as (Record<string, any>[] | Record<string, any>)[];
+        return result.flat();
+      },
       async onUserInput(content) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
@@ -251,9 +269,7 @@ export const useChatStore = create<ChatStore>()(
 
         const systemInfo = createMessage({
           role: 'system',
-          content: `IMPORTANT: You are a virtual assistant powered by the ${
-            modelConfig.model
-          } model, now time is ${new Date().toLocaleString()}}`,
+          content: `IMPORTANT: You are a virtual assistant powered by the ${modelConfig.model} model, now time is ${new Date().toLocaleString()}}`,
           id: botMessage.id! + 1,
         });
 
@@ -261,8 +277,8 @@ export const useChatStore = create<ChatStore>()(
         const systemMessages = [systemInfo];
         const recentMessages = get().getMessagesWithMemory();
         const sendMessages = systemMessages.concat(recentMessages.concat(userMessage));
-        const sessionIndex = get().currentSessionIndex;
-        const messageIndex = get().currentSession().messages.length + 1;
+        // const sessionIndex = get().currentSessionIndex;
+        // const messageIndex = get().currentSession().messages.length + 1;
         // save user's and bot's message
         get().updateCurrentSession((session) => {
           session.messages.push(userMessage);
@@ -275,25 +291,29 @@ export const useChatStore = create<ChatStore>()(
         // const _code = '当然，以下是一个简单的 JavaScript sum 函数的示例：\n\n```javascript\nfunction sum(numbers) {\n  let total = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    total += numbers[i];\n  }\n  return total;\n}\n```\n\n这个函数接受一个数字数组作为参数，并返回它们的总和。你可以像这样调用它：\n\n```javascript\nconst myArray = [1, 2, 3, 4, 5];\nconsole.log(sum(myArray)); // 输出 15\n```'
         // botMessage.streaming = false;
         // botMessage.content = _code;
+        // const store = get();
+        // const { sessions, currentSessionIndex, globalId } = store;
         // get().onNewMessage(botMessage);
         // set(() => ({}));
         chat({
           msg: content,
           onMessage(msg) {
-            let _msg = [];
-            try {
-              _msg = JSON.parse(msg);
-            } catch (error) {
-              console.log(error);
-            }
+            // let _msg = [];
+            // try {
+            //   _msg = JSON.parse(msg);
+            // } catch (error) {
+            //   console.log(error);
+            // }
+            const _msg = get().handleMesssge(msg);
             const _content = _msg
               .map((item: any) => {
                 return item.choices[0].message.content;
               })
               .filter((item: any) => item !== undefined);
             botMessage.streaming = true;
-            console.log(_content);
+
             botMessage.content += _content.join('');
+            console.log(botMessage.content);
             set(() => ({}));
           },
           onFinish() {
@@ -422,12 +442,12 @@ export const useChatStore = create<ChatStore>()(
         // should summarize topic after chating more than 50 words
         const SUMMARIZE_MIN_LEN = 50;
         if (session.topic === DEFAULT_TOPIC && countMessages(cleanMessages) >= SUMMARIZE_MIN_LEN) {
-          const topicMessages = cleanMessages.concat(
-            createMessage({
-              role: 'user',
-              content: Locale.Store.Prompt.Topic,
-            }),
-          );
+          // const topicMessages = cleanMessages.concat(
+          //   createMessage({
+          //     role: 'user',
+          //     content: Locale.Store.Prompt.Topic,
+          //   }),
+          // );
           // to do 请求
           // api.llm.chat({
           //   messages: topicMessages,
@@ -456,7 +476,7 @@ export const useChatStore = create<ChatStore>()(
         // add memory prompt
         toBeSummarizedMsgs.unshift(get().getMemoryPrompt());
 
-        const lastSummarizeIndex = session.messages.length;
+        // const lastSummarizeIndex = session.messages.length;
 
         console.log(
           '[Chat History] ',

@@ -14,7 +14,7 @@ import PluginIcon from "@/assets/icons/plugin.svg";
 import Locale from "@/assets/locales";
 
 import { useChatStore } from "@/store/chat";
-import { useAppConfig } from '@/hooks/useAppConfig'
+import { useAppConfig } from '@/store/config'
 
 import {
   MAX_SIDEBAR_WIDTH,

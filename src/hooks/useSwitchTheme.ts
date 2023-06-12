@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
-import { useAppConfig } from './useAppConfig';
+import { useAppConfig } from '../store/config';
 import { getCSSVar } from '@/tools/utils';
 function useSwitchTheme() {
   const config = useAppConfig();
-
   useEffect(() => {
     document.body.classList.remove("light");
     document.body.classList.remove("dark");
@@ -30,6 +29,7 @@ function useSwitchTheme() {
       metaDescriptionLight?.setAttribute("content", themeColor);
     }
   }, [config.theme]);
+  return { appTheme: config.theme };
 }
 export {
   useSwitchTheme

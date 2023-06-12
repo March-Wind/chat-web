@@ -84,6 +84,7 @@ export function MaskConfig(props: {
         </ListItem>
         <ListItem title={Locale.Mask.Config.Name}>
           <input
+            className="custom_input"
             type="text"
             value={props.mask.name}
             onInput={(e) => props.updateMask((mask) => (mask.name = e.currentTarget.value))}
@@ -125,7 +126,7 @@ function ContextPromptItem(props: { prompt: ChatMessage; update: (prompt: ChatMe
       <Input
         value={props.prompt.content}
         type="text"
-        className={chatStyle['context-content']}
+        className={chatStyle['context-content'] + ' custom_input'}
         rows={focusingInput ? 5 : 1}
         onFocus={() => setFocusingInput(true)}
         onBlur={() => setFocusingInput(false)}
@@ -274,7 +275,7 @@ function MaskPage() {
           <div className={styles['mask-filter']}>
             <input
               type="text"
-              className={styles['search-bar']}
+              className={styles['search-bar'] + ' custom_input'}
               placeholder={Locale.Mask.Page.Search}
               autoFocus
               onInput={(e) => onSearch(e.currentTarget.value)}
@@ -323,9 +324,8 @@ function MaskPage() {
                   <div className={styles['mask-title']}>
                     <div className={styles['mask-name']}>{m.name}</div>
                     <div className={styles['mask-info'] + ' one-line'}>
-                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${
-                        m.modelConfig.model
-                      }`}
+                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${m.modelConfig.model
+                        }`}
                     </div>
                   </div>
                 </div>

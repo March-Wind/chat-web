@@ -51,14 +51,14 @@ button {
 }
 
 /* Remove default input styles */
-input[type="text"],
-input[type="number"],
-textarea {
-  appearance: none;
-  border: none;
-  background-color: transparent;
-  resize: none;
-}
+// input[type="text"],
+// input[type="number"],
+// textarea {
+//   appearance: none;
+//   border: none;
+//   background-color: transparent;
+//   resize: none;
+// }
 
 /* Remove default select styles */
 select {
@@ -72,6 +72,7 @@ select {
 a:hover {
   text-decoration: none;
 }
+
 #root {
   height: 100%;
   overflow: auto;

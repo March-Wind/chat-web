@@ -8,7 +8,8 @@ interface ChatParams {
 }
 export const chat = (params: ChatParams) => {
   const { onMessage, onFinish, msg } = params;
-  const url = dev ? 'http://127.0.0.1:4001/chat' : 'http://'; // to do 接口地址
+  const url = dev ? 'http://127.0.0.1:4001/chat' : 'http://43.153.51.25:4001/chat'; // to do 接口地址
+  // const url = 'http://43.153.51.25:4001/chat'; // to do 接口地址
   fetchStream(url, {
     method: 'POST',
     body: JSON.stringify({ msg }),
