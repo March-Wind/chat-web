@@ -11,7 +11,7 @@ const Dot = lazy(() => import('./pages/dot/index'));
 const Settings = lazy(() => import('./pages/settings/index'));
 const NewChat = lazy(() => import('./pages/new-chat/index'));
 const MaskPage = lazy(() => import('./pages/mask/index'));
-const Register = lazy(() => import('./pages/register/index'));
+const Authentication = lazy(() => import('./pages/authentication/index'));
 const Agreement = lazy(() => import('./pages/agreement/index'));
 // const router = createBrowserRouter([
 //   {
@@ -38,7 +38,6 @@ const Agreement = lazy(() => import('./pages/agreement/index'));
 const RoutesCom = () => {
   return (
     <Routes>
-      <Route path={Path.Home} element={<Home />} />
       <Route
         path={Path.NewChat}
         element={
@@ -71,14 +70,14 @@ const RoutesCom = () => {
           </Suspense>
         }
       />
-      <Route
+      {/* <Route
         path={'/dot'}
         element={
           <Suspense>
             <Dot />
           </Suspense>
         }
-      />
+      /> */}
       <Route
         path={'/chat2'}
         element={
@@ -88,10 +87,10 @@ const RoutesCom = () => {
         }
       />
       <Route
-        path={'/register'}
+        path={'/authentication'}
         element={
           <Suspense>
-            <Register />
+            <Authentication />
           </Suspense>
         }
       />

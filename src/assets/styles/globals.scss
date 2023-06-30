@@ -65,7 +65,7 @@
   --window-height: 90vh;
   --sidebar-width: 300px;
   --window-content-width: calc(100% - var(--sidebar-width));
-  --message-max-width: 80%;
+  --message-max-width: 90%;
   --full-height: 100%;
 }
 
@@ -372,7 +372,7 @@ pre {
 .ant-input:-webkit-autofill:hover,
 .ant-input:-webkit-autofill:focus,
 .ant-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px #FFF inset !important;
   -webkit-text-fill-color: #000 !important;
   // -webkit-transition-delay: 9999;
   --webkit-background-clip: text;
@@ -380,4 +380,12 @@ pre {
 
 // .ant-select-selection-item {
 //   background-color: transparent !important;
+// }
+
+
+// .authentication_name{
+
+//   .ant-form-item-control, .ant-form-item-control-input{
+//     height: 100%;
+//   }
 // }

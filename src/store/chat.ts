@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
+import he from 'he';
 // import { trimTopic } from '@/tools/utils';
 
 import Locale from '@/assets/locales';
@@ -10,6 +10,7 @@ import { createEmptyMask, Mask } from './mask';
 import { StoreKey } from '../constant';
 import { RequestMessage } from '@/types';
 import { chat } from '@/apis';
+
 // import { api, RequestMessage } from "../client/api";
 // import { ChatControllerPool } from "../client/controller";
 // import { prettyObject } from "../utils/format";
@@ -248,7 +249,10 @@ export const useChatStore = create<ChatStore>()(
             }
           }
           return prev;
-        }, [] as (string | Record<string, any> | Record<string, any>[])[]) as (Record<string, any>[] | Record<string, any>)[];
+        }, [] as (string | Record<string, any> | Record<string, any>[])[]) as (
+          | Record<string, any>[]
+          | Record<string, any>
+        )[];
         return result.flat();
       },
       async onUserInput(content) {
@@ -269,7 +273,9 @@ export const useChatStore = create<ChatStore>()(
 
         const systemInfo = createMessage({
           role: 'system',
-          content: `IMPORTANT: You are a virtual assistant powered by the ${modelConfig.model} model, now time is ${new Date().toLocaleString()}}`,
+          content: `IMPORTANT: You are a virtual assistant powered by the ${
+            modelConfig.model
+          } model, now time is ${new Date().toLocaleString()}}`,
           id: botMessage.id! + 1,
         });
 
@@ -295,8 +301,9 @@ export const useChatStore = create<ChatStore>()(
         // const { sessions, currentSessionIndex, globalId } = store;
         // get().onNewMessage(botMessage);
         // set(() => ({}));
+        const encode2Content = he.encode(content);
         chat({
-          msg: content,
+          msg: encode2Content,
           onMessage(msg) {
             // let _msg = [];
             // try {

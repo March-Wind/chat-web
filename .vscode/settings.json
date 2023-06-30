@@ -20,5 +20,8 @@
         "scss",
         "less"
     ],
-    "stylelint.enable": true
+    "stylelint.enable": true,
+    "cSpell.words": [
+        "antd"
+    ]
 }

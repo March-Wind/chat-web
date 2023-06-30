@@ -1,8 +1,9 @@
 import React, { FC, useRef, useState, RefObject, useEffect } from 'react';
 import { marked } from 'marked';
+import he from 'he';
 // import type { Slugger } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-import { mangle } from 'marked-mangle';
+// import { mangle } from 'marked-mangle';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import { copyToClipboard } from '@/tools/utils';
@@ -29,8 +30,16 @@ marked.use({
   sanitize: false,
   smartypants: false,
   xhtml: false,
-  // mangle: false,
-  // headerIds: false,
+  mangle: false,
+  headerIds: false,
+});
+marked.use({
+  renderer: {
+    html(html) {
+      // 转译，防止XSS
+      return he.encode(html);
+    },
+  },
 });
 
 const MarkdownContent: FC<{ code: string }> = (props) => {
@@ -45,7 +54,10 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
       copyCode();
     }
   };
+  // const encode2code = he.encode(code);
+  // const _html = marked.parse(code);
   const _html = marked.parse(code);
+  // const encode2code = he.encode(_html);
   return (
     <div
       className="markdown-body-wrap"
@@ -82,33 +94,31 @@ function Markdown(
       const isOverlap = Math.max(parentTop, mdBounds.top) <= Math.min(parentBottom, mdBounds.bottom);
       inView.current = isOverlap;
     }
-
     if (inView.current && md) {
       renderedHeight.current = Math.max(renderedHeight.current, md.getBoundingClientRect().height);
     }
   };
 
-  setTimeout(() => checkInView(), 1);
-  debugger;
+  // setTimeout(() => checkInView(), 1);
+
   return (
     <div
       className="markdown-body"
       style={{
         fontSize: `${props.fontSize ?? 14}px`,
-        height: !inView.current && renderedHeight.current > 0 ? renderedHeight.current : 'auto',
+        // height: !inView.current && renderedHeight.current > 0 ? renderedHeight.current : 'auto',
       }}
       ref={mdRef}
       // onContextMenu={props.onContextMenu}
       // onDoubleClickCapture={props.onDoubleClickCapture}
     >
-      {inView.current &&
-        (props.loading ? (
-          <LoadingIcon />
-        ) : (
-          // <MarkdownContent content={props.content} />
-          // <>sdlfj</>
-          <MarkdownContent code={props.content} />
-        ))}
+      {props.loading ? (
+        <LoadingIcon />
+      ) : (
+        // <MarkdownContent content={props.content} />
+        // <>sdlfj</>
+        <MarkdownContent code={props.content} />
+      )}
     </div>
   );
 }
