@@ -3,7 +3,7 @@ import type { FC } from 'react';
 // import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { useLocation, BrowserRouter, Router } from 'react-router-dom';
-// import type { BrowserHistory } from 'react-router-dom'
+import type { BrowserHistory } from 'history';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
 import RoutesCom from './routes';
 import { Provider } from 'react-redux';
