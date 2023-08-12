@@ -107,3 +107,19 @@
     user-select: text;
   }
 }
+.loading-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: var(--white);
+  // animation: slide-in ease .3s;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  position: absolute;
+}
+.none {
+  display: none;
+}

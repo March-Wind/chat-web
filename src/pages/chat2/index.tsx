@@ -19,7 +19,6 @@ type HomeStore = RootState['home'];
 type HomeDispatch = ReturnType<typeof mapDispatchToProps>;
 
 function App(props: HomeStore & HomeDispatch) {
-  console.log(111, props);
   // const { value, increment, decrement } = props;
   // const [history, setHistory] = useState<ChatMessages>([]);
   const [html, setHtml] = useState<TrustedHTML | string>('');

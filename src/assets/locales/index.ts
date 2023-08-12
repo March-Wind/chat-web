@@ -1,20 +1,20 @@
-import CN from "./cn";
-import EN from "./en";
-import TW from "./tw";
-import ES from "./es";
-import IT from "./it";
-import TR from "./tr";
-import JP from "./jp";
-import DE from "./de";
-import VI from "./vi";
-import RU from "./ru";
-import CS from "./cs";
+import CN from './cn';
+import EN from './en';
+// import TW from "./tw";
+// import ES from "./es";
+// import IT from "./it";
+// import TR from "./tr";
+// import JP from "./jp";
+// import DE from "./de";
+// import VI from "./vi";
+// import RU from "./ru";
+// import CS from "./cs";
 
-export type { LocaleType } from "./cn";
+export type { LocaleType } from './cn';
 
 export const AllLangs = [
-  "en",
-  "cn",
+  'en',
+  'cn',
   // "tw",
   // "es",
   // "it",
@@ -27,8 +27,8 @@ export const AllLangs = [
 ] as const;
 export type Lang = (typeof AllLangs)[number];
 
-const LANG_KEY = "lang";
-const DEFAULT_LANG = "en";
+const LANG_KEY = 'lang';
+const DEFAULT_LANG = 'en';
 
 function getItem(key: string) {
   try {
@@ -42,7 +42,7 @@ function setItem(key: string, value: string) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    console.log('setItem函数报错')
+    console.log('setItem函数报错');
   }
 }
 
@@ -50,7 +50,7 @@ function getLanguage() {
   try {
     return navigator.language.toLowerCase();
   } catch {
-    console.log("[Lang] failed to detect user lang.");
+    console.log('[Lang] failed to detect user lang.');
     return DEFAULT_LANG;
   }
 }
@@ -58,7 +58,7 @@ function getLanguage() {
 export function getLang(): Lang {
   const savedLang = getItem(LANG_KEY);
 
-  if (AllLangs.includes((savedLang ?? "") as Lang)) {
+  if (AllLangs.includes((savedLang ?? '') as Lang)) {
     return savedLang as Lang;
   }
 
@@ -81,13 +81,13 @@ export function changeLang(lang: Lang) {
 export default {
   en: EN,
   cn: CN,
-  tw: TW,
-  es: ES,
-  it: IT,
-  tr: TR,
-  jp: JP,
-  de: DE,
-  vi: VI,
-  ru: RU,
-  cs: CS,
+  // tw: TW,
+  // es: ES,
+  // it: IT,
+  // tr: TR,
+  // jp: JP,
+  // de: DE,
+  // vi: VI,
+  // ru: RU,
+  // cs: CS,
 }[getLang()] as typeof CN;

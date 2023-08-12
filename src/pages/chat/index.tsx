@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { LoadingOutlined, RedoOutlined } from '@ant-design/icons';
 import SendWhiteIcon from '@/assets/icons/send-white.svg';
 import BrainIcon from '@/assets/icons/brain.svg';
 import RenameIcon from '@/assets/icons/rename.svg';
@@ -20,6 +21,8 @@ import AutoIcon from '@/assets/icons/auto.svg';
 import BottomIcon from '@/assets/icons/bottom.svg';
 import StopIcon from '@/assets/icons/pause.svg';
 import Markdown from '@/components/common/markdown';
+// import LoadingIcon from '@/assets/icons/three-dots.svg';
+
 import {
   ChatMessage,
   useChatStore,
@@ -145,7 +148,7 @@ export function SessionConfigModel(props: { onClose: () => void }) {
           extraListItems={
             session.mask.modelConfig.sendMemory ? (
               <ListItem
-                title={`${Locale.Memory.Title} (${session.lastSummarizeIndex} of ${session.messages.length})`}
+                title={`${Locale.Memory.Title}`}
                 subTitle={session.memoryPrompt || Locale.Memory.EmptyContent}
               ></ListItem>
             ) : (
@@ -297,7 +300,10 @@ export function ChatActions(props: {
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
-
+  const chatStore = useChatStore();
+  const session = chatStore.currentSession();
+  const { streaming, messages } = session;
+  const currentMsg = messages[messages.length - 1];
   // switch themes
   const theme = config.theme;
   function nextTheme() {
@@ -352,31 +358,53 @@ export function ChatActions(props: {
       >
         <MaskIcon />
       </div>
+      {/* 重新生成 */}
+      {!streaming && currentMsg?.role === 'assistant' ? (
+        <div
+          className={`${chatStyle['chat-input-action']} clickable`}
+          onClick={() => {
+            chatStore.regenerate();
+          }}
+        >
+          <RedoOutlined />
+        </div>
+      ) : null}
     </div>
   );
 }
 
 function Chat() {
   type RenderMessage = ChatMessage & { preview?: boolean };
-
   const chatStore = useChatStore();
-  const [session, sessionIndex] = useChatStore((state) => [state.currentSession(), state.currentSessionIndex]);
+  const [loading, session, sessionIndex] = useChatStore((state) => [
+    state.loading,
+    state.currentSession(),
+    state.currentSessionIndex,
+  ]);
+  console.log(222, loading);
+  console.log(444, loading, chatStore);
   const config = useAppConfig();
   const fontSize = config.fontSize;
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
-
-  const onChatBodyScroll = (e: HTMLElement) => {
-    const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 100;
-    setHitBottom(isTouchBottom);
-  };
+  useCommand({
+    fill: setUserInput,
+    submit: (text) => {
+      doSubmit(text);
+    },
+  });
+  // const onChatBodyScroll = (e: HTMLElement) => {
+  //   const isTouchBottom = e.scrollTop + e.clientHeight >= e.scrollHeight - 100;
+  //   setHitBottom(isTouchBottom);
+  // };
 
   // prompt hints
   const promptStore = usePromptStore();
@@ -412,7 +440,9 @@ function Chat() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(measure, [userInput]);
-
+  if (!session) {
+    return null;
+  }
   // only search prompts when user input is short
   const SEARCH_TEXT_LIMIT = 30;
   const onInput = (text: string) => {
@@ -466,45 +496,46 @@ function Chat() {
   //   }
   // };
 
-  const findLastUserIndex = (messageId: number) => {
-    // find last user input message and resend
-    let lastUserMessageIndex: number | null = null;
-    for (let i = 0; i < session.messages.length; i += 1) {
-      const message = session.messages[i];
-      if (message.id === messageId) {
-        break;
-      }
-      if (message.role === 'user') {
-        lastUserMessageIndex = i;
-      }
-    }
+  // const findLastUserIndex = (messageId: number) => {
+  //   // find last user input message and resend
+  //   let lastUserMessageIndex: number | null = null;
+  //   for (let i = 0; i < session.messages.length; i += 1) {
+  //     const message = session.messages[i];
+  //     if (message.id === messageId) {
+  //       break;
+  //     }
+  //     if (message.role === 'user') {
+  //       lastUserMessageIndex = i;
+  //     }
+  //   }
 
-    return lastUserMessageIndex;
-  };
+  //   return lastUserMessageIndex;
+  // };
 
-  const deleteMessage = (userIndex: number) => {
-    chatStore.updateCurrentSession((session) => session.messages.splice(userIndex, 2));
-  };
+  // const deleteMessage = (userIndex: number) => {
+  //   chatStore.updateCurrentSession((session) => session.messages.splice(userIndex, 2));
+  // };
 
-  const onDelete = (botMessageId: number) => {
-    const userIndex = findLastUserIndex(botMessageId);
-    if (userIndex === null) return;
-    deleteMessage(userIndex);
-  };
+  // const onDelete = (botMessageId: number) => {
+  //   const userIndex = findLastUserIndex(botMessageId);
+  //   if (userIndex === null) return;
+  //   deleteMessage(userIndex);
+  // };
 
-  const onResend = (botMessageId: number) => {
-    // find last user input message and resend
-    const userIndex = findLastUserIndex(botMessageId);
-    if (userIndex === null) return;
+  // const onResend = (topicId: string, botMessageId: string) => {
+  //   // find last user input message and resend
+  //   const userIndex = findLastUserIndex(botMessageId);
+  //   if (userIndex === null) return;
 
-    setIsLoading(true);
-    const content = session.messages[userIndex].content;
-    deleteMessage(userIndex);
-    chatStore.onUserInput(content).then(() => setIsLoading(false));
-    inputRef.current?.focus();
-  };
+  //   setIsLoading(true);
+  //   const content = session.messages[userIndex].content;
+  //   deleteMessage(userIndex);
 
-  const context: RenderMessage[] = session.mask.context.slice();
+  //   chatStore.onUserInput(content).then(() => setIsLoading(false));
+  //   inputRef.current?.focus();
+  // };
+
+  // const context: RenderMessage[] = session.mask.context.slice();
 
   // const accessStore = useAccessStore();
 
@@ -516,7 +547,7 @@ function Chat() {
   //   context.push(copiedHello);
   // }
   // preview messages
-  const messages = context.concat(session.messages as RenderMessage[]);
+  const messages = session.messages;
   // .concat(
   //   isLoading
   //     ? [
@@ -544,8 +575,6 @@ function Chat() {
   //     : [],
   // );
 
-  const [showPromptModal, setShowPromptModal] = useState(false);
-
   const renameSession = () => {
     const newTopic = prompt(Locale.Chat.Rename, session.topic);
     if (newTopic && newTopic !== session.topic) {
@@ -558,15 +587,10 @@ function Chat() {
   // const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const autoFocus = false; // only focus in chat page // to do
 
-  useCommand({
-    fill: setUserInput,
-    submit: (text) => {
-      doSubmit(text);
-    },
-  });
   return (
-    <div className={styles.chat} key={session.id}>
-      <div className="window-header">
+    // <div className={styles.chat} key={session.id} style={{ opacity: loading ? 0 : 1 }}>
+    <div className={styles.chat}>
+      <div className="window-header" key="window-header">
         <div className="window-header-title">
           <div className={`window-header-main-title " ${styles['chat-body-title']}`} onClickCapture={renameSession}>
             {!session.topic ? DEFAULT_TOPIC : session.topic}
@@ -611,13 +635,14 @@ function Chat() {
           )}
         </div>
 
-        <PromptToast showToast={!hitBottom} showModal={showPromptModal} setShowModal={setShowPromptModal} />
+        {/* <PromptToast showToast={!hitBottom} showModal={showPromptModal} setShowModal={setShowPromptModal} /> */}
       </div>
 
       <div
+        key={'chat-body'}
         className={styles['chat-body']}
         ref={scrollRef}
-        // onScroll={(e) => onChatBodyScroll(e.currentTarget)}
+        onScroll={(e) => console.log(11111)}
         // onMouseDown={() => inputRef.current?.blur()}
         // onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}
         // onTouchStart={() => {
@@ -625,80 +650,94 @@ function Chat() {
         // setAutoScroll(false);
         // }}
       >
-        {messages && messages.length > 0
-          ? messages.map((message, i) => {
-              const isUser = message.role === 'user';
-              // const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
-              const showActions = !isUser && !(message.preview || message.content.length === 0);
-              const showTyping = message.preview || message.streaming;
-              return (
-                <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
-                  <div className={styles['chat-message-container']}>
-                    <div className={styles['chat-message-avatar']}>
-                      {message.role === 'user' ? <Avatar avatar={config.avatar} /> : <MaskAvatar mask={session.mask} />}
-                    </div>
-                    {showTyping && <div className={styles['chat-message-status']}>{Locale.Chat.Typing}</div>}
-                    <div className={styles['chat-message-item']}>
-                      {showActions && (
-                        <div className={styles['chat-message-top-actions']}>
-                          {message.streaming ? (
-                            <div
-                              className={styles['chat-message-top-action']}
-                              onClick={() => onUserStop(message.id ?? i)}
-                            >
-                              {Locale.Chat.Actions.Stop}
-                            </div>
-                          ) : (
-                            <>
-                              <div
+        <>
+          {messages && messages.length > 0
+            ? messages.map((message, i) => {
+                const { preview, content = '' } = message;
+                const isUser = message.role === 'user';
+                // const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
+                const showActions = !isUser && !(preview || content.length === 0);
+                const showTyping = preview || message.streaming;
+                return (
+                  <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
+                    <div className={styles['chat-message-container']}>
+                      <div className={styles['chat-message-avatar']}>
+                        {message.role === 'user' ? (
+                          <Avatar avatar={config.avatar} />
+                        ) : (
+                          <MaskAvatar mask={session.mask} />
+                        )}
+                      </div>
+                      {showTyping && <div className={styles['chat-message-status']}>{Locale.Chat.Typing}</div>}
+                      <div className={styles['chat-message-item']}>
+                        {showActions && (
+                          <div className={styles['chat-message-top-actions']}>
+                            {message.streaming ? null : (
+                              // 中断
+                              // <div
+                              //   className={styles['chat-message-top-action']}
+                              //   onClick={() => onUserStop(message.id ?? i)}
+                              // >
+                              //   {Locale.Chat.Actions.Stop}
+                              // </div>
+                              <>
+                                {/* 删除, shelve 纯删除功能并没有什么作用，常用的是重新编辑自己的话，再次生成后面的话 */}
+
+                                {/* <div
                                 className={styles['chat-message-top-action']}
                                 onClick={() => onDelete(message.id ?? i)}
                               >
                                 {Locale.Chat.Actions.Delete}
-                              </div>
-                              <div
+                              </div> */}
+
+                                {/* 重新生成 */}
+                                {/* <div
                                 className={styles['chat-message-top-action']}
-                                onClick={() => onResend(message.id ?? i)}
+                                onClick={() => onResend(session.id, message.id!)}
                               >
                                 {Locale.Chat.Actions.Retry}
-                              </div>
-                            </>
-                          )}
-
-                          <div
-                            className={styles['chat-message-top-action']}
-                            onClick={() => copyToClipboard(message.content)}
-                          >
-                            {Locale.Chat.Actions.Copy}
+                              </div> */}
+                              </>
+                            )}
+                            {/* 复制 */}
+                            <div
+                              className={styles['chat-message-top-action']}
+                              onClick={() => copyToClipboard(message.content)}
+                            >
+                              {Locale.Chat.Actions.Copy}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      <Markdown
-                        content={message.content}
-                        loading={(message.preview || message.content.length === 0) && !isUser}
-                        // onContextMenu={(e) => onRightClick(e, message)}
-                        // onDoubleClickCapture={() => {
-                        //   if (!isMobileScreen) return;
-                        //   setUserInput(message.content);
-                        // }}
-                        fontSize={fontSize}
-                        parentRef={scrollRef}
-                        defaultShow={i >= messages.length - 10}
-                      />
-                    </div>
-                    {!isUser && !message.preview && (
-                      <div className={styles['chat-message-actions']}>
-                        <div className={styles['chat-message-action-date']}>{message.date.toLocaleString()}</div>
+                        )}
+                        <Markdown
+                          content={content}
+                          loading={(preview || content.length === 0) && !isUser}
+                          // onContextMenu={(e) => onRightClick(e, message)}
+                          // onDoubleClickCapture={() => {
+                          //   if (!isMobileScreen) return;
+                          //   setUserInput(message.content);
+                          // }}
+                          fontSize={fontSize}
+                          parentRef={scrollRef}
+                          defaultShow={i >= messages.length - 10}
+                        />
                       </div>
-                    )}
+                      {/* {!isUser && !message.preview && (
+                    <div className={styles['chat-message-actions']}>
+                      <div className={styles['chat-message-action-date']}>{message.date.toLocaleString()}</div>
+                    </div>
+                  )} */}
+                    </div>
                   </div>
-                </div>
-              );
-            })
-          : null}
+                );
+              })
+            : null}
+          <div className={loading ? chatStyle['loading-box'] : chatStyle['none']}>
+            <LoadingOutlined />
+          </div>
+        </>
       </div>
 
-      <div className={styles['chat-input-panel']}>
+      <div className={styles['chat-input-panel']} key={'chat-input-panel'}>
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions

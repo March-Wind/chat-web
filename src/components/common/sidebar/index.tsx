@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogoutOutlined, LoginOutlined } from '@ant-design/icons';
 import styles from '@/app.module.scss';
-
+import { showToast } from '@/components/common/ui-lib/ui-lib';
+import { ChatList } from '@/components/chat/chat-list/chat-list';
 import { IconButton } from '../button';
 import SettingsIcon from '@/assets/icons/settings.svg';
 import GithubIcon from '@/assets/icons/github.svg';
@@ -18,11 +20,9 @@ import { useAppConfig } from '@/store/config';
 
 import { MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH, NARROW_SIDEBAR_WIDTH, Path, REPO_URL } from '@/constant';
 
-import { Link, useNavigate } from 'react-router-dom';
 import { useMobileScreen } from '@/hooks/useWindowSize';
+import { modal } from '@/components/common/antd';
 // import dynamic from "next/dynamic";
-import { showToast } from '@/components/common/ui-lib/ui-lib';
-import { ChatList } from '@/components/chat/chat-list/chat-list';
 
 // const ChatList = dynamic(async () => (await import("./chat-list")).ChatList, {
 //   loading: () => null,
@@ -108,8 +108,8 @@ export function SideBar(props: { className?: string }) {
   return (
     <div className={`${styles.sidebar} ${props.className} ${shouldNarrow && styles['narrow-sidebar']}`}>
       <div className={styles['sidebar-header']}>
-        <div className={styles['sidebar-title']}>ChatGPT Next</div>
-        <div className={styles['sidebar-sub-title']}>Build your own AI assistant.</div>
+        <div className={styles['sidebar-title']}>助理 & 知识库</div>
+        <div className={styles['sidebar-sub-title']}>使用最先进的AI模型作为你的助理</div>
         <div className={styles['sidebar-logo'] + ' no-dark'}>
           <ChatGptIcon />
         </div>
@@ -134,24 +134,27 @@ export function SideBar(props: { className?: string }) {
 
       <div
         className={styles['sidebar-body']}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            navigate(Path.Home);
-          }
-        }}
+        // onClick={(e) => {
+        //   if (e.target === e.currentTarget) {
+        //     navigate(Path.Home);
+        //   }
+        // }}
       >
         <ChatList narrow={shouldNarrow} />
       </div>
 
       <div className={styles['sidebar-tail']}>
         <div className={styles['sidebar-actions']}>
-          <div className={styles['sidebar-action'] + ' ' + styles.mobile}>
+          {/* <div className={styles['sidebar-action'] + ' ' + styles.mobile}> */}
+          <div className={styles['sidebar-action']}>
             <IconButton
               icon={<CloseIcon />}
               onClick={() => {
-                if (confirm(Locale.Home.DeleteChat)) {
-                  chatStore.deleteSession(chatStore.currentSessionIndex);
-                }
+                // message.warning() // 确认 to do
+                modal.confirm({
+                  title: Locale.Home.ClearChatHistory,
+                  onOk: () => chatStore.clearSessions(),
+                });
               }}
             />
           </div>

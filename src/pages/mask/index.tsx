@@ -32,7 +32,8 @@ export function MaskAvatar(props: { mask: Mask }) {
   return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
     <Avatar avatar={props.mask.avatar} />
   ) : (
-    <Avatar model={props.mask.modelConfig.model} />
+    // <Avatar model={props.mask.modelConfig.model} />
+    <Avatar model="gpt-4" />
   );
 }
 
@@ -324,8 +325,9 @@ function MaskPage() {
                   <div className={styles['mask-title']}>
                     <div className={styles['mask-name']}>{m.name}</div>
                     <div className={styles['mask-info'] + ' one-line'}>
-                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${m.modelConfig.model
-                        }`}
+                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${
+                        m.modelConfig.model
+                      }`}
                     </div>
                   </div>
                 </div>

@@ -1,4 +1,6 @@
 import widthToken from '@/apis/width-token';
+import { StoreKey } from '@/constant';
+import { usePersonStore } from '@/store/person';
 interface Params extends RequestInit {
   onmessage: (msg: string) => void;
   onclose: () => void;
@@ -64,6 +66,14 @@ const fetchStream = (url: string, params: Params) => {
 
   // 发送请求
   return fetch(url, _otherParams).then((response) => {
+    // 如果重新分发了token就更新
+    const newToken = response.headers.get('access_token');
+    if (newToken) {
+      // const state = usePersonStore.getState();
+      usePersonStore.setState({
+        token: newToken,
+      });
+    }
     // 以ReadableStream解析数据
     const reader = response.body!.getReader();
     const stream = new ReadableStream({

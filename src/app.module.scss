@@ -123,7 +123,7 @@
 
 .sidebar-header {
   position: relative;
-  padding-top: 20px;
+  padding-top: 10px;
   padding-bottom: 20px;
 }
 
@@ -312,10 +312,12 @@
   display: flex;
   justify-content: space-between;
   padding-top: 20px;
+  flex-wrap: wrap;
 }
 
 .sidebar-actions {
   display: inline-flex;
+  margin-bottom: 12px;
 }
 
 .sidebar-action:not(:last-child) {
@@ -331,6 +333,7 @@
 
 .chat-body {
   flex: 1;
+  height: 500px;
   overflow: auto;
   padding: 20px;
   padding-bottom: 40px;

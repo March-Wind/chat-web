@@ -8,6 +8,7 @@
     }
   },
   "compilerOptions": {
+    "resolveJsonModule": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,

@@ -16,6 +16,7 @@ import { useChatStore } from '@/store/chat';
 import { useAppConfig } from '@/store/config';
 import { MaskAvatar } from '@/pages/mask';
 import useCommand from '@/hooks/useCommand';
+import { use } from 'cytoscape';
 
 function getIntersectionArea(aRect: DOMRect, bRect: DOMRect) {
   const xmin = Math.max(aRect.x, bRect.x);
@@ -52,7 +53,6 @@ function MaskItem(props: { mask: Mask; onClick?: () => void }) {
 
     return () => window.removeEventListener('resize', changeOpacity);
   }, [domRef]);
-
   return (
     <div className={styles['mask']} ref={domRef} onClick={props.onClick}>
       <MaskAvatar mask={props.mask} />
@@ -61,45 +61,12 @@ function MaskItem(props: { mask: Mask; onClick?: () => void }) {
   );
 }
 
-function useMaskGroup(masks: Mask[]) {
-  const [groups, setGroups] = useState<Mask[][]>([]);
-
-  useEffect(() => {
-    const appBody = document.getElementById(SlotID.AppBody);
-    if (!appBody || masks.length === 0) return;
-
-    const rect = appBody.getBoundingClientRect();
-    const maxWidth = rect.width;
-    const maxHeight = rect.height * 0.6;
-    const maskItemWidth = 120;
-    const maskItemHeight = 50;
-
-    const randomMask = () => masks[Math.floor(Math.random() * masks.length)];
-    let maskIndex = 0;
-    const nextMask = () => masks[maskIndex++ % masks.length];
-
-    const rows = Math.ceil(maxHeight / maskItemHeight);
-    const cols = Math.ceil(maxWidth / maskItemWidth);
-
-    const newGroups = new Array(rows)
-      .fill(0)
-      .map((_, _i) => new Array(cols).fill(0).map((_, j) => (j < 1 || j > cols - 2 ? randomMask() : nextMask())));
-
-    setGroups(newGroups);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return groups;
-}
-
 function NewChat() {
   const chatStore = useChatStore();
   const maskStore = useMaskStore();
 
-  const masks = maskStore.getAll();
-  const groups = useMaskGroup(masks);
-
+  const masks = maskStore.masks;
+  console.log(111, masks);
   const navigate = useNavigate();
   const config = useAppConfig();
 
@@ -121,10 +88,16 @@ function NewChat() {
     },
   });
 
+  useEffect(() => {
+    maskStore.queryPrompts();
+  }, []);
+
   return (
     <div className={styles['new-chat']}>
       <div className={styles['mask-header']}>
+        {/* 返回 */}
         <IconButton icon={<LeftIcon />} text={Locale.NewChat.Return} onClick={() => navigate(Path.Home)}></IconButton>
+
         {!state?.fromHome && (
           <IconButton
             text={Locale.NewChat.NotShow}
@@ -172,13 +145,18 @@ function NewChat() {
       </div>
 
       <div className={styles['masks']}>
-        {groups.map((masks, i) => (
+        {/* {groups.map((masks, i) => (
           <div key={i} className={styles['mask-row']}>
             {masks.map((mask, index) => (
               <MaskItem key={index} mask={mask} onClick={() => startChat(mask)} />
             ))}
           </div>
-        ))}
+        ))} */}
+        <div className={styles['masks-wrap']}>
+          {masks.map((mask, index) => {
+            return <MaskItem key={index} mask={mask} onClick={() => startChat(mask)} />;
+          })}
+        </div>
       </div>
     </div>
   );

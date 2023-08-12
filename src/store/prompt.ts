@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import Fuse from 'fuse.js';
 import { getLang } from '@/assets/locales';
 import { StoreKey } from '@/constant';
-
+import prompt from '@/assets/prompts.json';
 export interface Prompt {
   id?: number;
   isUser?: boolean;
@@ -136,34 +136,34 @@ export const usePromptStore = create<PromptStore>()(
       name: StoreKey.Prompt,
       version: 1,
       onRehydrateStorage(state) {
-        // to do
+        // to do 资源放在服务器上
         // const PROMPT_URL = "./prompts.json";
         // type PromptList = Array<[string, string]>;
         // fetch(PROMPT_URL)
         //   .then((res) => res.json())
         //   .then((res) => {
-        //     let fetchPrompts = [res.en, res.cn];
-        //     if (getLang() === "cn") {
-        //       fetchPrompts = fetchPrompts.reverse();
-        //     }
-        //     const builtinPrompts = fetchPrompts.map(
-        //       (promptList: PromptList) => {
-        //         return promptList.map(
-        //           ([title, content]) => ({
-        //             id: Math.random(),
-        //             title,
-        //             content,
-        //           } as Prompt),
-        //         );
-        //       },
-        //     );
-        //     const userPrompts =
-        //       usePromptStore.getState().getUserPrompts() ?? [];
-        //     const allPromptsForSearch = builtinPrompts
-        //       .reduce((pre, cur) => pre.concat(cur), [])
-        //       .filter((v) => !!v.title && !!v.content);
-        //     SearchService.count.builtin = res.en.length + res.cn.length;
-        //     SearchService.init(allPromptsForSearch, userPrompts);
+        setTimeout(() => {
+          let fetchPrompts = [prompt.en, prompt.cn];
+          if (getLang() === 'cn') {
+            fetchPrompts = fetchPrompts.reverse();
+          }
+          const builtinPrompts = fetchPrompts.map((promptList) => {
+            return promptList.map(
+              ([title, content]) =>
+                ({
+                  id: Math.random(),
+                  title,
+                  content,
+                } as Prompt),
+            );
+          });
+          const userPrompts = usePromptStore.getState().getUserPrompts() ?? [];
+          const allPromptsForSearch = builtinPrompts
+            .reduce((pre, cur) => pre.concat(cur), [])
+            .filter((v) => !!v.title && !!v.content);
+          SearchService.count.builtin = prompt.en.length + prompt.cn.length;
+          SearchService.init(allPromptsForSearch, userPrompts);
+        }, 300);
         //   });
       },
     },
