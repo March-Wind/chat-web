@@ -4,8 +4,9 @@ import { ALL_MODELS, ModalConfigValidator, ModelConfig } from '@/store/config';
 import Locale from '@/assets/locales';
 import { InputRange } from '@/components/common/input-range';
 import {
-  // List, 
-  ListItem, Select
+  // List,
+  ListItem,
+  Select,
 } from '@/components/common/ui-lib/ui-lib';
 
 export function ModelConfigList(props: {
@@ -15,7 +16,7 @@ export function ModelConfigList(props: {
   console.log(21323);
   return (
     <>
-      <ListItem title={Locale.Settings.Model}>
+      {/* <ListItem title={Locale.Settings.Model}>
         <Select
           value={props.modelConfig.model}
           onChange={(e) => {
@@ -28,7 +29,7 @@ export function ModelConfigList(props: {
             </option>
           ))}
         </Select>
-      </ListItem>
+      </ListItem> */}
       <ListItem title={Locale.Settings.Temperature.Title} subTitle={Locale.Settings.Temperature.SubTitle}>
         <InputRange
           value={props.modelConfig.temperature?.toFixed(1)}
@@ -42,7 +43,7 @@ export function ModelConfigList(props: {
           }}
         ></InputRange>
       </ListItem>
-      <ListItem title={Locale.Settings.MaxTokens.Title} subTitle={Locale.Settings.MaxTokens.SubTitle}>
+      {/* <ListItem title={Locale.Settings.MaxTokens.Title} subTitle={Locale.Settings.MaxTokens.SubTitle}>
         <input
           className='custom_input'
           type="number"
@@ -101,7 +102,7 @@ export function ModelConfigList(props: {
           checked={props.modelConfig.sendMemory}
           onChange={(e) => props.updateConfig((config) => (config.sendMemory = e.currentTarget.checked))}
         ></input>
-      </ListItem>
+      </ListItem> */}
     </>
   );
 }

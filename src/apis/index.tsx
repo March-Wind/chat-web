@@ -6,9 +6,11 @@ import fetchStream from '@/tools/fetchStream';
 import awaitWrap from '@/tools/await-wrap';
 import fingerprintFn from '@/tools/fingerprinting';
 import { isString } from '@/tools/variable-type';
-import { successStatus, loginAgain } from '@/constant';
+import { successStatus, loginAgain, waitingForCompletion } from '@/constant';
 import widthToken from './width-token';
 import { usePersonStore } from '@/store/person';
+import type { Mask } from '@/store/utilsFn';
+import { waitForDebugger } from 'inspector';
 
 const env = process.env.NODE_ENV;
 const dev = env === 'development';
@@ -53,7 +55,7 @@ axios.interceptors.response.use(
   },
   (err) => {
     const { response } = err;
-    if (response.status === 403 || response.status === 401) {
+    if ((response?.status === 403 && response?.body?.status === loginAgain) || response.status === 401) {
       // 过期3天重新登录
       history.push('/authentication?type=login');
       message.warning('请登录~');
@@ -67,24 +69,25 @@ interface FetchStreamParams {
   onMessage: (msg: string) => void;
   onFinish?: () => void;
   onError?: (err: Error) => void;
-  onMessageError?: (err: any) => void;
+  // onMessageError?: (err: any) => void;
   body: Record<string, any>;
 }
 const fetchStreamUrl = (url: string, params: FetchStreamParams) => {
-  const { onMessage, onFinish, body, onError, onMessageError } = params;
-  fetchStream(url, {
+  const { onMessage, onFinish, body, onError } = params;
+  return fetchStream(url, {
     method: 'POST',
     body: JSON.stringify(body),
     headers: {
       'Content-Type': 'application/json',
     },
-    onmessage: (msg: string) => {
+    onMessage: (msg: string) => {
       onMessage?.(msg);
     },
-    onclose: () => {
+    onEnd: () => {
       onFinish?.();
     },
-    onerror: (err: any) => {
+    onError: (err: any) => {
+      debugger;
       if (err?.status === 403 && err?.body?.status === loginAgain) {
         history.push('/authentication?type=login');
         return message.info('请重新登录~');
@@ -93,8 +96,8 @@ const fetchStreamUrl = (url: string, params: FetchStreamParams) => {
         history.push('/authentication?type=login');
         return message.info('请登录~');
       }
-      if (onMessageError) {
-        onMessageError(err);
+      if (onError) {
+        onError(err);
       } else {
         message.error(serverMsg(err?.body?.msg) || err?.statusText || '服务器错误，请稍后再试~');
       }
@@ -112,47 +115,23 @@ interface ChatParams {
   onMessage: (msg: string) => void;
   onFinish: () => void;
   body: { topicId: string; msg: string };
+  mask?: Mask;
+  onError: (err: any) => void;
 }
 
 export const chat = (params: ChatParams) => {
   const url = `${baseURL}/chat`;
-  fetchStreamUrl(url, params);
-  // fetchStream(url, {
-  //   method: 'POST',
-  //   body: JSON.stringify({ msg, topicId }),
-  //   // body: { msg },
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   onmessage: (msg: string) => {
-  //     onMessage?.(msg);
-  //   },
-  //   onclose: () => {
-  //     onFinish?.();
-  //   },
-  //   onerror: (err: any) => {
-  //     if (err?.status === 403 && err?.body?.status === loginAgain) {
-  //       history.push('/authentication?type=login');
-  //       return message.info('请重新登录~');
-  //     }
-  //     if (err?.status === 401) {
-  //       history.push('/authentication?type=login');
-  //       return message.info('请登录~');
-  //     }
-  //     message.error(serverMsg(err?.body?.msg) || err?.statusText || '服务器错误，请稍后再试~');
-  //   },
-  // }).catch((err: any) => {
-  //   message.error('聊天结束异常，请稍后再试~');
-  // });
+  return fetchStreamUrl(url, params);
 };
 interface RegenerateParams {
-  body: { topicId: string; reserveIndex: number };
+  body: { topicId: string; reserveIndex: number; mask?: Mask };
   onMessage: (msg: string) => void;
   onFinish: () => void;
+  onError: (err: any) => void;
 }
 export const regenerateChat = (params: RegenerateParams) => {
   const url = `${baseURL}/regenerate-content`;
-  fetchStreamUrl(url, params);
+  return fetchStreamUrl(url, params);
 };
 interface RegisterUser {
   email: string;
@@ -202,18 +181,7 @@ export const LoginUser = (data: LoginUserP) => {
       return '';
     });
 };
-interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  id: string;
-}
-interface Topic {
-  createTime: number;
-  lastUpdateTime: number;
-  messages: Message[];
-  title?: string | undefined;
-  id: string;
-}
+
 export const getTopics = (): Promise<Topic[]> => {
   const url = `${baseURL}/getMyselfTopics`;
   return axios
@@ -326,7 +294,7 @@ export const deleteMessage = (topicId: string, messageId: string) => {
     });
 };
 
-export const queryPrompts = () => {
+export const queryPrompts = (): Promise<Prompt[]> => {
   const url = `${baseURL}/queryPrompts`;
   return axios
     .get(url)
@@ -340,6 +308,44 @@ export const queryPrompts = () => {
     .catch((err: any) => {
       if (err) {
         message.error(serverMsg(err?.data?.msg) || '查询提示失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+
+export const saveUserPrePrompt = (data: Omit<Prompt, 'id'>) => {
+  const url = `${baseURL}/saveUserPrePrompt`;
+  return axios
+    .post(url, data)
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '保存用户预设失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '保存用户预设失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+
+export const queryUserPrePrompt = (): Promise<Prompt[]> => {
+  const url = `${baseURL}/queryUserPrePrompt`;
+  return axios
+    .post(url)
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '获取用户预设失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '获取用户预设失败，请稍后再试~');
       }
       return '';
     });

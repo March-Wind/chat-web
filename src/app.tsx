@@ -98,35 +98,3 @@ const App = () => {
 
 const root = createRoot(document.getElementById('root') as Element);
 root.render(<App />);
-
-// function PreCheck(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-//   const originalMethod = descriptor.value;
-//   console.log(target, propertyKey, descriptor)
-//   debugger
-//   descriptor.value = function (...args: any[]) {
-//     console.log("Checking before method call...", this);
-//     this.getA();
-//     debugger
-
-//     originalMethod.apply(this, args);
-//   };
-// }
-
-// class Parent {
-//   b: number;
-//   getA() {
-//     console.log(1111);
-//     this.b = 1;
-//     return 1111;
-//   }
-// }
-// class Children extends Parent {
-//   @PreCheck
-//   performAction() {
-//     console.log("Performing action...");
-//   }
-// }
-
-// const instance = new Children();
-// instance.performAction();
-// console.log(instance.b)

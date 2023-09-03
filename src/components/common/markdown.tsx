@@ -56,7 +56,11 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
   };
   // const encode2code = he.encode(code);
   // const _html = marked.parse(code);
-  const _html = marked.parse(code);
+  // 处理空格问题
+  const _code = code.replace(/\n\n\s{4}/g, '\n\n&nbsp;&nbsp;&nbsp;&nbsp;');
+  console.log(_code);
+  const _html = marked.parse(_code);
+  // const _html = marked.parse(code);
   // const encode2code = he.encode(_html);
   return (
     <div

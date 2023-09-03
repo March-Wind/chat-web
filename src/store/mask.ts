@@ -1,14 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { BUILTIN_MASKS } from '@/assets/masks';
-import { getLang, Lang } from '@/assets/locales';
-// import { DEFAULT_TOPIC, ChatMessage } from "./chat";
-import { ModelConfig, ModelType, useAppConfig } from './config';
 import { StoreKey } from '../constant';
-import { queryPrompts } from '@/apis';
+import { queryPrompts, queryUserPrePrompt, saveUserPrePrompt } from '@/apis';
 import { DEFAULT_MASK_STATE, DEFAULT_MASK_ID, DEFAULT_MASK_AVATAR, createEmptyMask, DEFAULT_TOPIC } from './utilsFn';
 import type { Mask, MaskState, ChatMessage } from './utilsFn';
-import { isSameTime } from '@/tools/formatDate';
+// import { isSameTime } from '@/tools/formatDate';
 // debugger
 // export type Mask = {
 //   id: number;
@@ -28,58 +24,61 @@ import { isSameTime } from '@/tools/formatDate';
 // export type MaskState = typeof DEFAULT_MASK_STATE;
 export * from './utilsFn';
 type MaskStore = MaskState & {
-  queryPromptsTime?: Date;
+  // queryPromptsTime?: Date;
   queryPrompts: () => void;
   create: (mask?: Partial<Mask>) => Mask;
-  update: (id: number, updater: (mask: Mask) => void) => void;
-  delete: (id: number) => void;
+  update: (id: string, updater: (mask: Mask) => void) => void;
+  delete: (id: string) => void;
+  save: (id: string) => void;
   search: (text: string) => Mask[];
-  get: (id?: number) => Mask | null;
+  get: (id: string) => Mask | undefined;
   getAll: () => Mask[];
 };
 
-// export const DEFAULT_MASK_ID = 1145141919810;
-// export const DEFAULT_MASK_AVATAR = "gpt-bot";
-// export const createEmptyMask = () => ({
-//   id: DEFAULT_MASK_ID,
-//   avatar: DEFAULT_MASK_AVATAR,
-//   name: DEFAULT_TOPIC,
-//   context: [],
-//   modelConfig: { ...useAppConfig.getState().modelConfig },
-//   lang: getLang(),
-//   builtin: false,
-// } as Mask);
-// debugger
 export const useMaskStore = create<MaskStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_MASK_STATE,
-      queryPromptsTime: undefined,
+      // queryPromptsTime: undefined,
       create(mask) {
+        const index = get().masks.length;
         const _mask = {
-          ...createEmptyMask(),
+          ...createEmptyMask(index + ''),
           ...mask,
-          id: 1,
-          builtin: false,
         };
         set((state) => ({
           masks: ([] as Mask[]).concat([...state.masks, _mask]),
         }));
         return _mask;
       },
+      save(id) {
+        const masks = get().masks;
+        const index = masks.findIndex((item) => item.id === id);
+        const mask = masks[index];
+        if (!mask) return;
+        saveUserPrePrompt(mask).then((data) => {
+          if (!data) {
+            return;
+          }
+          const updateMask = { ...mask };
+          masks[index] = updateMask;
+          set(() => ({ masks }));
+        });
+      },
       update(id, updater) {
         const masks = get().masks;
-        const mask = masks[id];
+        const index = masks.findIndex((item) => item.id === id);
+        const mask = masks[index];
         if (!mask) return;
         const updateMask = { ...mask };
         updater(updateMask);
-        masks[id] = updateMask;
+        masks[index] = updateMask;
         set(() => ({ masks }));
       },
       delete(id) {
         const masks = get().masks;
-        delete masks[id];
-        set(() => ({ masks }));
+        const newMasks = masks.filter((item) => item.id !== id);
+        set(() => ({ masks: newMasks }));
       },
       queryPrompts() {
         // 如果是同一天的请求，就略过，就是简单的去重一下请求
@@ -88,22 +87,24 @@ export const useMaskStore = create<MaskStore>()(
         //   const sameTime = isSameTime(queryPromptsTime.getDate(), new Date().getTime());
         //   return;
         // }
-        queryPrompts().then((data) => {
-          if (!data) {
+        Promise.all([queryPrompts(), queryUserPrePrompt()]).then((data) => {
+          if (!data || !data[0] || !data[1]) {
             return;
           }
-          set((state) => ({
-            masks: ([] as Mask[]).concat([...data, ...state.masks]),
-            queryPromptsTime: new Date(),
-          }));
+          const [system = [], user = []] = data;
+          const part1: Mask[] = system.map((item) => ({ ...item, type: 'system' }));
+          const part2: Mask[] = user.map((item) => ({ ...item, type: 'user' }));
+          set({
+            masks: ([] as Mask[]).concat(...part1, ...part2),
+            // queryPromptsTime: new Date(),
+          });
         });
       },
       get(id) {
-        return get().masks[id ?? 1145141919810];
+        return get().masks.find((item) => item.id === id);
       },
       getAll() {
-        const userMasks = Object.values(get().masks).sort((a, b) => b.id - a.id);
-        return userMasks.concat(BUILTIN_MASKS);
+        return get().masks;
       },
       search(text) {
         return get().masks;

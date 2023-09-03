@@ -8,15 +8,17 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id?: string;
   model?: ModelType;
+  reader?: Promise<ReadableStreamDefaultReader<Uint8Array> | void>;
 };
 export type Mask = {
-  id: number;
+  id: string;
   avatar: string;
   name: string;
-  context: ChatMessage[];
-  modelConfig: ModelConfig;
-  lang: Lang;
-  builtin: boolean;
+  type: 'system' | 'user' | 'base';
+  context?: Message[];
+  modelConfig: {
+    temperature: number; // 0-2
+  };
 };
 
 export const DEFAULT_MASK_STATE = {
@@ -31,13 +33,13 @@ export const DEFAULT_MASK_AVATAR = 'gpt-bot';
 
 export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 
-export const createEmptyMask = () =>
+export const createEmptyMask = (id = '') =>
   ({
-    id: DEFAULT_MASK_ID,
+    id,
     avatar: DEFAULT_MASK_AVATAR,
-    name: DEFAULT_TOPIC,
-    // context: [],
-    // modelConfig: { ...useAppConfig.getState().modelConfig },
-    // lang: getLang(),
-    // builtin: false,
+    name: '新预设',
+    type: 'user',
+    modelConfig: {
+      temperature: 0,
+    },
   } as Mask);

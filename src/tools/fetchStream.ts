@@ -1,36 +1,25 @@
 import widthToken from '@/apis/width-token';
-import { StoreKey } from '@/constant';
+// import { StoreKey } from '@/constant';
 import { usePersonStore } from '@/store/person';
 interface Params extends RequestInit {
-  onmessage: (msg: string) => void;
-  onclose: () => void;
-  onerror: (err: any) => void;
+  onMessage: (msg: string) => void;
+  onEnd: () => void;
+  onError: (err: any) => void;
 }
 
 const fetchStream = (url: string, params: Params) => {
-  // // to do debugger时，导致消息堆积在一起，就不能用JSON.parse去解析了
-  const { onmessage, onclose, onerror, ...otherParams } = params;
-
-  const onSuccess = async (
-    controller: ReadableStreamDefaultController<any>,
-    reader: ReadableStreamDefaultReader<Uint8Array>,
-  ) => {
+  const { onMessage, onEnd, onError, ...otherParams } = params;
+  const onSuccess = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
     const { value, done } = await reader.read();
     if (done) {
-      controller.close();
-      onclose?.();
+      onEnd?.();
     } else {
-      onmessage?.(new TextDecoder().decode(value));
-      controller.enqueue(value);
-      onSuccess(controller, reader);
+      onMessage?.(new TextDecoder().decode(value));
+      onSuccess(reader);
     }
   };
-  const onError = async (
-    response: Response,
-    controller: ReadableStreamDefaultController<any>,
-    reader: ReadableStreamDefaultReader<Uint8Array>,
-  ) => {
-    const { value, done } = await reader.read();
+  const _onError = async (response: Response, reader: ReadableStreamDefaultReader<Uint8Array>) => {
+    const { value } = await reader.read();
     // 由于是错误，假设一定是一次性返回。
     const { headers, status, statusText } = response;
     let body = new TextDecoder().decode(value);
@@ -47,8 +36,7 @@ const fetchStream = (url: string, params: Params) => {
         'Content-Type': 'application/json',
       },
     };
-    onerror?.(newRes);
-    controller.close();
+    onError?.(newRes);
     reader.cancel();
   };
 
@@ -69,22 +57,17 @@ const fetchStream = (url: string, params: Params) => {
     // 如果重新分发了token就更新
     const newToken = response.headers.get('access_token');
     if (newToken) {
-      // const state = usePersonStore.getState();
       usePersonStore.setState({
         token: newToken,
       });
     }
-    // 以ReadableStream解析数据
     const reader = response.body!.getReader();
-    const stream = new ReadableStream({
-      start(controller) {
-        if (response.status !== 200) {
-          return onError(response, controller, reader);
-        }
-        onSuccess(controller, reader);
-      },
-    });
-    return stream;
+    if (response.status !== 200) {
+      _onError(response, reader);
+    } else {
+      onSuccess(reader);
+    }
+    return reader;
   });
   // .then((stream) => new Response(stream, { headers: { 'Content-Type': 'text/html' } }).text());
 };

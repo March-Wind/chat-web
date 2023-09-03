@@ -6,7 +6,7 @@ import he from 'he';
 import Locale from '@/assets/locales';
 import { showToast } from '@/components/common/ui-lib/ui-lib';
 import { ModelType } from './config';
-import { createEmptyMask, Mask, DEFAULT_TOPIC, ChatMessage } from './utilsFn';
+import { Mask, DEFAULT_TOPIC, ChatMessage } from './utilsFn';
 import { StoreKey } from '../constant';
 import { RequestMessage } from '@/types';
 import {
@@ -61,7 +61,7 @@ export interface ChatStat {
 export interface ChatSession {
   id: string;
 
-  topic: string;
+  topic?: string;
 
   memoryPrompt: string;
   messages: ChatMessage[];
@@ -69,7 +69,7 @@ export interface ChatSession {
   lastUpdate: number;
   lastSummarizeIndex: number;
   streaming?: boolean;
-  mask: Mask;
+  mask?: Mask;
 }
 
 // export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -93,7 +93,7 @@ function createEmptySession(): ChatSession {
     // },
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
-    mask: createEmptyMask(),
+    // mask: createEmptyMask(),
   };
 }
 
@@ -116,20 +116,20 @@ interface ChatStore {
   onNewMessage: (message: ChatMessage) => void;
   onUserInput: (content: string) => Promise<void>;
   getTopicMessages: (topicId: string) => void;
-  summarizeSession: () => void;
+  // summarizeSession: () => void;
   // updateStat: (message: ChatMessage) => void;
   updateCurrentSession: (updater: (session: ChatSession) => void) => void;
   updateMessage: (sessionIndex: number, messageIndex: number, updater: (message?: ChatMessage) => void) => void;
   resetSession: () => void;
-  getMessagesWithMemory: () => ChatMessage[];
   getMemoryPrompt: () => ChatMessage;
 
   clearAllData: () => void;
-  regenerate: (topicId?: string, messageId?: string) => void;
+  regenerate: (topicId?: string, reserveIndex?: number) => void;
   chatApi: (
     chatParams?: { content: string; session: ChatSession; botMessage: ChatMessage },
     regenerateParams?: { session: ChatSession; botMessage: ChatMessage; reserveIndex: number },
   ) => void;
+  stopGenerate: () => void;
   // scrollToBottom: () => void;
 }
 
@@ -149,7 +149,12 @@ export const useChatStore = create<ChatStore>()(
           getTopics()
             .then((data) => {
               if (data && !data.length) {
-                return get().clearSessions();
+                set(() => ({
+                  sessions: [createEmptySession()],
+                  currentSessionIndex: 0,
+                  loading: false,
+                }));
+                return;
               }
               set((state) => {
                 if (state.sessions[0]?.id === data[0]?.id) {
@@ -172,7 +177,7 @@ export const useChatStore = create<ChatStore>()(
                       messages: messages,
                       lastUpdate: item.lastUpdateTime || new Date().getTime(),
                       lastSummarizeIndex: 0,
-                      mask: createEmptyMask(),
+                      mask: item.prePrompt,
                       streaming: false,
                     };
                   }),
@@ -223,11 +228,14 @@ export const useChatStore = create<ChatStore>()(
           });
         },
         selectSession(index: number) {
-          get().setLoading(true);
           set({
             currentSessionIndex: index,
           });
           const topicId = get().sessions[index].id;
+          if (!topicId) {
+            return;
+          }
+          get().setLoading(true);
           const oldMsgs = get().sessions[index].messages;
           if (oldMsgs?.length > 0) {
             setTimeout(() => {
@@ -289,13 +297,16 @@ export const useChatStore = create<ChatStore>()(
 
           if (mask) {
             session.mask = { ...mask };
-            session.topic = mask.name;
+            session.topic = '';
           }
 
-          set((state) => ({
-            currentSessionIndex: 0,
-            sessions: [session].concat(state.sessions),
-          }));
+          set(
+            (state) => ({
+              currentSessionIndex: 0,
+              sessions: [session].concat(state.sessions),
+            }),
+            false,
+          );
         },
 
         deleteSession(topicId) {
@@ -390,7 +401,7 @@ export const useChatStore = create<ChatStore>()(
             session.lastUpdate = Date.now();
           });
           // get().updateStat(message);
-          get().summarizeSession();
+          // get().summarizeSession();
         },
         handleMessage(message: string): Record<string, any>[] {
           const result = message.split('\n\n').reduce((prev, current, currentIndex, array) => {
@@ -415,7 +426,6 @@ export const useChatStore = create<ChatStore>()(
         },
         async onUserInput(content) {
           const session = get().currentSession();
-          const modelConfig = session.mask.modelConfig;
 
           const userMessage: ChatMessage = createMessage({
             role: 'user',
@@ -426,7 +436,6 @@ export const useChatStore = create<ChatStore>()(
             role: 'assistant',
             streaming: true,
             id: userMessage.id! + 1,
-            model: modelConfig.model,
           });
 
           // save user's and bot's message
@@ -446,52 +455,6 @@ export const useChatStore = create<ChatStore>()(
           // set(() => ({}));
           // const encode2Content = he.encode(content);
           get().chatApi({ content, session, botMessage });
-          // chat({
-          //   topicId: session.id,
-          //   // msg: encode2Content,
-          //   msg: content,
-          //   onMessage(msg) {
-          //     const _msg = get().handleMessage(msg);
-          //     const _content = _msg
-          //       .map((item: any) => {
-          //         if (item.error) {
-          //           message.error(item.error);
-          //           return ''
-          //         }
-          //         if (item.type === 'topicId') { // 设置 topicId
-          //           set((state) => {
-          //             const _sessions = state.sessions.slice();
-          //             const { currentSessionIndex: cIndex } = state;
-          //             _sessions[cIndex].id = item.topicId;
-          //             return {
-          //               sessions: _sessions
-          //             }
-          //           })
-          //           return ''
-          //         }
-          //         return item.choices[0].message.content;
-          //       })
-          //       .filter((item: any) => item !== undefined);
-          //     botMessage.streaming = true;
-
-          //     botMessage.content += _content.join('');
-          //     console.log(botMessage.content);
-          //     set(() => ({}));
-          //   },
-          //   onFinish() {
-          //     botMessage.streaming = false;
-          //     session.streaming = false;
-          //     // botMessage.content = message;
-          //     get().onNewMessage(botMessage);
-          //     set(() => ({}));
-          //     const { currentSessionIndex, sessions } = get();
-          //     const currentSession = sessions[currentSessionIndex];
-          //     // 没有标题，就设置标题
-          //     if (currentSession.id && (!currentSession.topic || currentSession.topic === DEFAULT_TOPIC)) {
-          //       get().setTopic(currentSession.id);
-          //     }
-          //   },
-          // });
         },
         chatApi(chatParams, regenerateParams) {
           const api = chatParams ? chat : regenerateParams ? regenerateChat : undefined;
@@ -508,10 +471,11 @@ export const useChatStore = create<ChatStore>()(
             reserveIndex = params.reserveIndex;
           }
           const { session, botMessage } = params!;
-          api({
+          const { mask } = session;
+          const reader = api({
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            body: { msg: content, reserveIndex, topicId: session.id },
+            body: { msg: content, reserveIndex, topicId: session.id, prePrompt: mask },
             onMessage(msg) {
               const _msg = get().handleMessage(msg);
               const _content = _msg
@@ -536,7 +500,7 @@ export const useChatStore = create<ChatStore>()(
                 })
                 .filter((item: any) => item !== undefined);
               botMessage.streaming = true;
-
+              botMessage.reader = reader;
               botMessage.content += _content.join('');
               console.log(botMessage.content);
               set(() => ({}));
@@ -544,32 +508,52 @@ export const useChatStore = create<ChatStore>()(
             onFinish() {
               botMessage.streaming = false;
               session.streaming = false;
+              botMessage.reader = undefined;
               // botMessage.content = message;
               get().onNewMessage(botMessage);
               set(() => ({}));
-              const { currentSessionIndex, sessions } = get();
-              const currentSession = sessions[currentSessionIndex];
+              const { sessions } = get();
+              const currentSession = sessions.find((item) => item.id === session.id);
               // 没有标题，就设置标题
-              if (currentSession.id && (!currentSession.topic || currentSession.topic === DEFAULT_TOPIC)) {
+              if (
+                currentSession &&
+                currentSession.id &&
+                (!currentSession.topic || currentSession.topic === DEFAULT_TOPIC)
+              ) {
                 get().setTopic(currentSession.id);
               }
+            },
+            onError(err: any) {
+              message.error(err?.body?.msg || '请求失败');
+              botMessage.streaming = false;
+              botMessage.isError = true;
+              session.streaming = false;
+              botMessage.content = err?.body?.msg || '请求失败';
+              set(() => ({}));
             },
           });
         },
         async regenerate(topicId?: string, reserveIndex?: number) {
           const { currentSession, sessions, deleteMessage } = get();
           topicId = topicId || currentSession().id;
+          if (!topicId) {
+            // 目前只可能是在页面上创建了对话，因为被未结束的聊天暂缓了，在数据库没有创建对话，只需要删除错误会发，当做新输入的就行
+            const session = currentSession();
+            const messages = session.messages;
+            session.messages = [];
+            set({});
+            this.onUserInput(messages[0].content);
+            return;
+          }
           const session = sessions.find((item) => item.id === topicId)!;
           reserveIndex = reserveIndex === undefined ? session.messages.length - 1 - 1 : reserveIndex; // 最后一个
           // const index = session.messages.findIndex((item) => item.id === messageId);
           const messages = session.messages.slice(0, reserveIndex + 1);
           session.streaming = true;
-          const modelConfig = session.mask.modelConfig;
           const botMessage: ChatMessage = createMessage({
             role: 'assistant',
             streaming: true,
             id: '',
-            model: modelConfig.model,
           });
           // save user's and bot's message
           messages.push(botMessage);
@@ -591,6 +575,18 @@ export const useChatStore = create<ChatStore>()(
             session.messages = session.messages.filter((item) => item.id !== messageId);
           });
         },
+        stopGenerate() {
+          const { currentSession } = get();
+          const session = currentSession();
+          const messages = session.messages;
+          const botMessage = messages[messages.length - 1];
+          botMessage.reader?.then((reader) => {
+            reader?.cancel();
+            botMessage.reader = undefined;
+            botMessage.streaming = false;
+            set({});
+          });
+        },
         getMemoryPrompt() {
           const session = get().currentSession();
 
@@ -599,41 +595,6 @@ export const useChatStore = create<ChatStore>()(
             content: session.memoryPrompt.length > 0 ? Locale.Store.Prompt.History(session.memoryPrompt) : '',
             date: '',
           } as ChatMessage;
-        },
-
-        getMessagesWithMemory() {
-          const session = get().currentSession();
-          const modelConfig = session.mask.modelConfig;
-          const messages = session.messages.filter((msg) => !msg.isError);
-          const n = messages.length;
-
-          const context = session.mask.context.slice();
-
-          // long term memory
-          if (modelConfig.sendMemory && session.memoryPrompt && session.memoryPrompt.length > 0) {
-            const memoryPrompt = get().getMemoryPrompt();
-            context.push(memoryPrompt);
-          }
-
-          // get short term and unmemoried long term memory
-          const shortTermMemoryMessageIndex = Math.max(0, n - modelConfig.historyMessageCount);
-          const longTermMemoryMessageIndex = session.lastSummarizeIndex;
-          const oldestIndex = Math.max(shortTermMemoryMessageIndex, longTermMemoryMessageIndex);
-          const threshold = modelConfig.compressMessageLengthThreshold;
-
-          // get recent messages as many as possible
-          const reversedRecentMessages = [];
-          for (let i = n - 1, count = 0; i >= oldestIndex && count < threshold; i -= 1) {
-            const msg = messages[i];
-            if (!msg || msg.isError) continue;
-            count += msg.content.length;
-            reversedRecentMessages.push(msg);
-          }
-
-          // concat
-          const recentMessages = context.concat(reversedRecentMessages.reverse());
-
-          return recentMessages;
         },
 
         updateMessage(sessionIndex: number, messageIndex: number, updater: (message?: ChatMessage) => void) {
@@ -649,81 +610,6 @@ export const useChatStore = create<ChatStore>()(
             session.messages = [];
             session.memoryPrompt = '';
           });
-        },
-
-        summarizeSession() {
-          const session = get().currentSession();
-
-          // remove error messages if any
-          const cleanMessages = session.messages.filter((msg) => !msg.isError);
-
-          // should summarize topic after chating more than 50 words
-          const SUMMARIZE_MIN_LEN = 50;
-          if (session.topic === DEFAULT_TOPIC && countMessages(cleanMessages) >= SUMMARIZE_MIN_LEN) {
-            // const topicMessages = cleanMessages.concat(
-            //   createMessage({
-            //     role: 'user',
-            //     content: Locale.Store.Prompt.Topic,
-            //   }),
-            // );
-            // to do 请求
-            // api.llm.chat({
-            //   messages: topicMessages,
-            //   config: {
-            //     model: "gpt-3.5-turbo",
-            //   },
-            //   onFinish(message) {
-            //     get().updateCurrentSession(
-            //       (session) =>
-            //         (session.topic = message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
-            //     );
-            //   },
-            // });
-          }
-
-          const modelConfig = session.mask.modelConfig;
-          let toBeSummarizedMsgs = cleanMessages.slice(session.lastSummarizeIndex);
-
-          const historyMsgLength = countMessages(toBeSummarizedMsgs);
-
-          if (historyMsgLength > modelConfig?.max_tokens ?? 4000) {
-            const n = toBeSummarizedMsgs.length;
-            toBeSummarizedMsgs = toBeSummarizedMsgs.slice(Math.max(0, n - modelConfig.historyMessageCount));
-          }
-
-          // add memory prompt
-          toBeSummarizedMsgs.unshift(get().getMemoryPrompt());
-
-          // const lastSummarizeIndex = session.messages.length;
-
-          console.log(
-            '[Chat History] ',
-            toBeSummarizedMsgs,
-            historyMsgLength,
-            modelConfig.compressMessageLengthThreshold,
-          );
-
-          if (historyMsgLength > modelConfig.compressMessageLengthThreshold && session.mask.modelConfig.sendMemory) {
-            // to do 请求
-            // api.llm.chat({
-            //   messages: toBeSummarizedMsgs.concat({
-            //     role: "system",
-            //     content: Locale.Store.Prompt.Summarize,
-            //     date: "",
-            //   }),
-            //   config: { ...modelConfig, stream: true },
-            //   onUpdate(message) {
-            //     session.memoryPrompt = message;
-            //   },
-            //   onFinish(message) {
-            //     console.log("[Memory] ", message);
-            //     session.lastSummarizeIndex = lastSummarizeIndex;
-            //   },
-            //   onError(err) {
-            //     console.error("[Summarize] ", err);
-            //   },
-            // });
-          }
         },
 
         // updateStat(message) {
@@ -749,27 +635,55 @@ export const useChatStore = create<ChatStore>()(
     {
       name: StoreKey.Chat,
       version: 2,
-      migrate(persistedState, version) {
-        const state = persistedState as any;
-        const newState = JSON.parse(JSON.stringify(state)) as ChatStore;
+      storage: {
+        getItem: (name) => {
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          const { state } = JSON.parse(str);
+          return {
+            state: {
+              ...state,
+              transactions: new Map(state.transactions),
+            },
+          };
+        },
+        // setItem: (name, newValue: StorageValue<BearState>) => {
+        setItem: (name, newValue) => {
+          // functions cannot be JSON encoded
+          // 将第一个没有id的session过滤掉
+          newValue.state.sessions = newValue.state.sessions.filter((item: any) => item.id);
 
-        if (version < 2) {
-          newState.globalId = 0;
-          newState.sessions = [];
-
-          const oldSessions = state.sessions;
-          for (const oldSession of oldSessions) {
-            const newSession = createEmptySession();
-            newSession.topic = oldSession.topic;
-            newSession.messages = [...oldSession.messages];
-            newSession.mask.modelConfig.sendMemory = true;
-            newSession.mask.modelConfig.historyMessageCount = 4;
-            newSession.mask.modelConfig.compressMessageLengthThreshold = 1000;
-            newState.sessions.push(newSession);
-          }
-        }
-        return newState;
+          const str = JSON.stringify({
+            state: {
+              ...newValue.state,
+              // transactions: Array.from(newValue.state.transactions.entries()),
+            },
+          });
+          localStorage.setItem(name, str);
+        },
+        removeItem: (name) => localStorage.removeItem(name),
       },
+      // migrate(persistedState, version) {
+      //   const state = persistedState as any;
+      //   const newState = JSON.parse(JSON.stringify(state)) as ChatStore;
+
+      //   if (version < 2) {
+      //     newState.globalId = 0;
+      //     newState.sessions = [];
+
+      //     const oldSessions = state.sessions;
+      //     for (const oldSession of oldSessions) {
+      //       const newSession = createEmptySession();
+      //       newSession.topic = oldSession.topic;
+      //       newSession.messages = [...oldSession.messages];
+      //       newSession.mask.modelConfig.sendMemory = true;
+      //       newSession.mask.modelConfig.historyMessageCount = 4;
+      //       newSession.mask.modelConfig.compressMessageLengthThreshold = 1000;
+      //       newState.sessions.push(newSession);
+      //     }
+      //   }
+      //   return newState;
+      // },
     },
   ),
 );

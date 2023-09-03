@@ -61,7 +61,7 @@
         display: flex;
         align-items: center;
 
-        .mask-icon {
+        .mask-icon-box {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -105,4 +105,15 @@
       }
     }
   }
+}
+
+.mask-icon {
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-in-light);
+  box-shadow: var(--card-shadow);
+  border-radius: 10px;
 }

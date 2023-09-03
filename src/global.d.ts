@@ -59,3 +59,26 @@ declare module '*.jp2' {
 }
 
 // export { };
+interface Message {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  id: string;
+}
+
+interface Prompt {
+  id: string;
+  avatar: string;
+  name: string;
+  modelConfig: {
+    temperature: number; // 0-2
+  };
+  context?: Message[];
+}
+interface Topic {
+  createTime: number;
+  lastUpdateTime: number;
+  messages: Message[];
+  title?: string | undefined;
+  id: string;
+  prePrompt?: Prompt;
+}

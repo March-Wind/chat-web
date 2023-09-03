@@ -27,5 +27,6 @@ export const CN_MASKS: BuiltinMask[] = [
   {
     avatar: '1f4d5',
     name: '小红书写手',
+    id: 1,
   },
 ];

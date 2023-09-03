@@ -24,18 +24,15 @@ export function AvatarPicker(props: { onEmojiClick: (emojiId: string) => void })
   );
 }
 
-export function Avatar(props: { model?: ModelType; avatar?: string }) {
+export function Avatar(props: { model?: ModelType; avatar?: string; className?: string }) {
   const {
     name: { firstName, lastName },
   } = usePersonStore();
+  const { className = 'user-avatar' } = props;
   if (props.model) {
     return (
       <div className="no-dark">
-        {props.model?.startsWith('gpt-4') ? (
-          <BlackBotIcon className="user-avatar" />
-        ) : (
-          <BotIcon className="user-avatar" />
-        )}
+        {props.model?.startsWith('gpt-4') ? <BlackBotIcon className={className} /> : <BotIcon className={className} />}
       </div>
     );
   }

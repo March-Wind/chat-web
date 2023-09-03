@@ -3,7 +3,7 @@ import { IconButton } from '@/components/common/button';
 // import { ErrorBoundary } from "./error";
 
 import styles from './mask.module.scss';
-
+import { SaveOutlined } from '@ant-design/icons';
 import DownloadIcon from '@/assets/icons/download.svg';
 import UploadIcon from '@/assets/icons/upload.svg';
 import EditIcon from '@/assets/icons/edit.svg';
@@ -28,14 +28,22 @@ import { ModelConfigList } from './model-config';
 import { FileName, Path } from '@/constant';
 import { BUILTIN_MASK_STORE } from '@/assets/masks';
 
-export function MaskAvatar(props: { mask: Mask }) {
-  return props.mask.avatar !== DEFAULT_MASK_AVATAR ? (
-    <Avatar avatar={props.mask.avatar} />
+export function MaskAvatar(props: { mask: Mask | undefined }) {
+  return props?.mask?.avatar && props?.mask?.avatar !== DEFAULT_MASK_AVATAR ? (
+    <Avatar avatar={props?.mask?.avatar} />
   ) : (
     // <Avatar model={props.mask.modelConfig.model} />
     <Avatar model="gpt-4" />
   );
 }
+
+const MaskIcon = ({ mask }: { mask?: Mask }) => {
+  return mask?.avatar ? (
+    <img className={styles['mask-icon']} src={mask.avatar} alt="" />
+  ) : (
+    <Avatar className={styles['mask-icon']} model="gpt-4" />
+  );
+};
 
 export function MaskConfig(props: {
   mask: Mask;
@@ -52,21 +60,25 @@ export function MaskConfig(props: {
     updater(config);
     props.updateMask((mask) => (mask.modelConfig = config));
   };
+  const { mask } = props;
+  const { context = [] } = mask;
 
+  const { readonly } = props;
   return (
     <>
       <ContextPrompts
-        context={props.mask.context}
+        context={context}
+        readonly={readonly}
         updateContext={(updater) => {
-          const context = props.mask.context.slice();
-          updater(context);
-          props.updateMask((mask) => (mask.context = context));
+          const _context = context.slice();
+          updater(_context);
+          props.updateMask((mask) => (mask.context = _context));
         }}
       />
 
       <List>
         <ListItem title={Locale.Mask.Config.Avatar}>
-          <Popover
+          {/* <Popover
             content={
               <AvatarPicker
                 onEmojiClick={(emoji) => {
@@ -77,22 +89,22 @@ export function MaskConfig(props: {
             }
             open={showPicker}
             onClose={() => setShowPicker(false)}
-          >
-            <div onClick={() => setShowPicker(true)} style={{ cursor: 'pointer' }}>
-              <MaskAvatar mask={props.mask} />
-            </div>
-          </Popover>
+          > */}
+          <div onClick={() => setShowPicker(true)} style={{ cursor: 'pointer' }}>
+            <MaskAvatar mask={props.mask} />
+          </div>
+          {/* </Popover> */}
         </ListItem>
         <ListItem title={Locale.Mask.Config.Name}>
           <input
             className="custom_input"
             type="text"
             value={props.mask.name}
-            onInput={(e) => props.updateMask((mask) => (mask.name = e.currentTarget.value))}
+            readOnly={readonly}
+            onInput={readonly ? undefined : (e) => props.updateMask((mask) => (mask.name = e.currentTarget.value))}
           ></input>
         </ListItem>
       </List>
-
       <List>
         <ModelConfigList modelConfig={{ ...props.mask.modelConfig }} updateConfig={updateConfig} />
         {props.extraListItems}
@@ -153,9 +165,10 @@ function ContextPromptItem(props: { prompt: ChatMessage; update: (prompt: ChatMe
 export function ContextPrompts(props: {
   context: ChatMessage[];
   updateContext: (updater: (context: ChatMessage[]) => void) => void;
+  readonly?: boolean;
 }) {
   const context = props.context;
-
+  const { readonly } = props;
   const addContextPrompt = (prompt: ChatMessage) => {
     props.updateContext((context) => context.push(prompt));
   };
@@ -182,6 +195,7 @@ export function ContextPrompts(props: {
 
         <div className={chatStyle['context-prompt-row']}>
           <IconButton
+            disabled={readonly}
             icon={<AddIcon />}
             text={Locale.Context.Add}
             bordered
@@ -225,8 +239,8 @@ function MaskPage() {
     }
   };
 
-  const [editingMaskId, setEditingMaskId] = useState<number | undefined>();
-  const editingMask = maskStore.get(editingMaskId) ?? BUILTIN_MASK_STORE.get(editingMaskId);
+  const [editingMaskId, setEditingMaskId] = useState<string | undefined>();
+  const editingMask = editingMaskId ? maskStore.get(editingMaskId) : undefined;
   const closeMaskModal = () => setEditingMaskId(undefined);
 
   const downloadAll = () => {
@@ -281,7 +295,7 @@ function MaskPage() {
               autoFocus
               onInput={(e) => onSearch(e.currentTarget.value)}
             />
-            <Select
+            {/* <Select
               className={styles['mask-filter-lang']}
               value={filterLang ?? Locale.Settings.Lang.All}
               onChange={(e) => {
@@ -301,7 +315,7 @@ function MaskPage() {
                   {Locale.Settings.Lang.Options[lang]}
                 </option>
               ))}
-            </Select>
+            </Select> */}
 
             <IconButton
               className={styles['mask-create']}
@@ -316,57 +330,68 @@ function MaskPage() {
           </div>
 
           <div>
-            {masks.map((m) => (
-              <div className={styles['mask-item']} key={m.id}>
-                <div className={styles['mask-header']}>
-                  <div className={styles['mask-icon']}>
-                    <MaskAvatar mask={m} />
-                  </div>
-                  <div className={styles['mask-title']}>
-                    <div className={styles['mask-name']}>{m.name}</div>
-                    <div className={styles['mask-info'] + ' one-line'}>
-                      {`${Locale.Mask.Item.Info(m.context.length)} / ${Locale.Settings.Lang.Options[m.lang]} / ${
-                        m.modelConfig.model
-                      }`}
+            {masks.map((m, i) => {
+              let typeTip: string;
+              switch (m.type) {
+                case 'system':
+                  typeTip = '系统设置';
+                  break;
+                case 'user':
+                  typeTip = '用户设置';
+                  break;
+                case 'base':
+                default:
+                  typeTip = '基础预设';
+                  break;
+              }
+              return (
+                <div className={styles['mask-item']} key={m.id + i}>
+                  <div className={styles['mask-header']}>
+                    <div className={styles['mask-icon-box']}>
+                      <MaskIcon mask={m} />
+                    </div>
+                    <div className={styles['mask-title']}>
+                      <div className={styles['mask-name']}>{m.name}</div>
+                      <div className={styles['mask-info'] + ' one-line'}>{typeTip}</div>
                     </div>
                   </div>
-                </div>
-                <div className={styles['mask-actions']}>
-                  <IconButton
-                    icon={<AddIcon />}
-                    text={Locale.Mask.Item.Chat}
-                    onClick={() => {
-                      chatStore.newSession(m);
-                      navigate(Path.Chat);
-                    }}
-                  />
-                  {m.builtin ? (
+                  <div className={styles['mask-actions']}>
                     <IconButton
-                      icon={<EyeIcon />}
-                      text={Locale.Mask.Item.View}
-                      onClick={() => setEditingMaskId(m.id)}
-                    />
-                  ) : (
-                    <IconButton
-                      icon={<EditIcon />}
-                      text={Locale.Mask.Item.Edit}
-                      onClick={() => setEditingMaskId(m.id)}
-                    />
-                  )}
-                  {!m.builtin && (
-                    <IconButton
-                      icon={<DeleteIcon />}
-                      text={Locale.Mask.Item.Delete}
+                      icon={<AddIcon />}
+                      text={Locale.Mask.Item.Chat}
                       onClick={() => {
-                        if (confirm(Locale.Mask.Item.DeleteConfirm)) {
-                          maskStore.delete(m.id);
-                        }
+                        chatStore.newSession(m);
+                        navigate(Path.Chat);
                       }}
                     />
-                  )}
+                    {m.type === 'system' ? (
+                      <IconButton
+                        icon={<EyeIcon />}
+                        text={Locale.Mask.Item.View}
+                        onClick={() => setEditingMaskId(m.id)}
+                      />
+                    ) : (
+                      <IconButton
+                        icon={<EditIcon />}
+                        text={Locale.Mask.Item.Edit}
+                        onClick={() => setEditingMaskId(m.id)}
+                      />
+                    )}
+                    {m.type === 'user' && (
+                      <IconButton
+                        icon={<DeleteIcon />}
+                        text={Locale.Mask.Item.Delete}
+                        onClick={() => {
+                          if (confirm(Locale.Mask.Item.DeleteConfirm)) {
+                            maskStore.delete(m.id);
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -374,33 +399,39 @@ function MaskPage() {
       {editingMask && (
         <div className="modal-mask">
           <Modal
-            title={Locale.Mask.EditModal.Title(editingMask?.builtin)}
+            title={Locale.Mask.EditModal.Title(editingMask?.type !== 'user')}
             onClose={closeMaskModal}
-            actions={[
-              <IconButton
-                icon={<DownloadIcon />}
-                text={Locale.Mask.EditModal.Download}
-                key="export"
-                bordered
-                onClick={() => downloadAs(JSON.stringify(editingMask), `${editingMask.name}.json`)}
-              />,
-              <IconButton
-                key="copy"
-                icon={<CopyIcon />}
-                bordered
-                text={Locale.Mask.EditModal.Clone}
-                onClick={() => {
-                  navigate(Path.Masks);
-                  maskStore.create(editingMask);
-                  setEditingMaskId(undefined);
-                }}
-              />,
-            ]}
+            actions={
+              editingMask?.type === 'user'
+                ? [
+                    <IconButton
+                      icon={<SaveOutlined />}
+                      text={Locale.Mask.EditModal.Save}
+                      key="export"
+                      bordered
+                      onClick={() => {
+                        maskStore.save(editingMask.id);
+                      }}
+                    />,
+                    <IconButton
+                      key="copy"
+                      icon={<CopyIcon />}
+                      bordered
+                      text={Locale.Mask.EditModal.Clone}
+                      onClick={() => {
+                        navigate(Path.Masks);
+                        maskStore.create(editingMask);
+                        setEditingMaskId(undefined);
+                      }}
+                    />,
+                  ]
+                : []
+            }
           >
             <MaskConfig
               mask={editingMask}
               updateMask={(updater) => maskStore.update(editingMaskId!, updater)}
-              readonly={editingMask.builtin}
+              readonly={editingMask?.type !== 'user'}
             />
           </Modal>
         </div>

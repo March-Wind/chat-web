@@ -22,10 +22,10 @@ export function ChatItem(props: {
   count: number;
   time: string;
   selected: boolean;
-  id: number;
+  id: string;
   index: number;
   narrow?: boolean;
-  mask: Mask;
+  mask: Mask | undefined;
 }) {
   const draggableRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -111,9 +111,11 @@ export function ChatList(props: { narrow?: boolean }) {
         {(provided) => (
           <div className={styles['chat-list']} ref={provided.innerRef} {...provided.droppableProps}>
             {sessions.map((item, i) => {
+              const { topic = '新的聊天', mask } = item;
+              const { name = '' } = mask || {};
               return (
                 <ChatItem
-                  title={item.topic + item.id}
+                  title={name ? `${name}:${topic}` : topic}
                   time={new Date(item.lastUpdate).toLocaleString()}
                   count={item.messages.length}
                   key={item.id + i}

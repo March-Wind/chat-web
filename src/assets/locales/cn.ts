@@ -169,7 +169,7 @@ const cn = {
     },
   },
   Store: {
-    DefaultTopic: '新的聊天',
+    DefaultTopic: undefined,
     BotHello: '有什么可以帮你的吗',
     Error: '出错了，稍后重试吧',
     Prompt: {
@@ -210,11 +210,12 @@ const cn = {
     EditModal: {
       Title: (readonly: boolean) => `编辑预设面具 ${readonly ? '（只读）' : ''}`,
       Download: '下载预设',
+      Save: '保存预设',
       Clone: '克隆预设',
     },
     Config: {
-      Avatar: '角色头像',
-      Name: '角色名称',
+      Avatar: '头像',
+      Name: '预设名称',
     },
   },
   NewChat: {

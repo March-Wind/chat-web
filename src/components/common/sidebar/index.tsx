@@ -109,7 +109,7 @@ export function SideBar(props: { className?: string }) {
     <div className={`${styles.sidebar} ${props.className} ${shouldNarrow && styles['narrow-sidebar']}`}>
       <div className={styles['sidebar-header']}>
         <div className={styles['sidebar-title']}>助理 & 知识库</div>
-        <div className={styles['sidebar-sub-title']}>使用最先进的AI模型作为你的助理</div>
+        <div className={styles['sidebar-sub-title']}>使用最先进的AI模型作为工作助手</div>
         <div className={styles['sidebar-logo'] + ' no-dark'}>
           <ChatGptIcon />
         </div>
