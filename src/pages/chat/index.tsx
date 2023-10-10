@@ -380,11 +380,13 @@ export function ChatActions(props: {
 function Chat() {
   // type RenderMessage = ChatMessage & { preview?: boolean };
   const chatStore = useChatStore();
-  const [loading, session = {} as ChatSession, sessionIndex] = useChatStore((state) => [
-    state.loading,
-    state.currentSession(),
-    state.currentSessionIndex,
-  ]);
+  // const [loading, session = {} as ChatSession, sessionIndex] = useChatStore((state) => [
+  //   state.loading,
+  //   state.currentSession(),
+  //   state.currentSessionIndex,
+  // ]);
+  const sessionIndex = chatStore.currentSessionIndex;
+  const session = chatStore.sessions[sessionIndex];
   const config = useAppConfig();
   const fontSize = config.fontSize;
 
