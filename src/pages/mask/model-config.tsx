@@ -43,20 +43,6 @@ export function ModelConfigList(props: {
           }}
         ></InputRange>
       </ListItem>
-      {/* <ListItem title={Locale.Settings.MaxTokens.Title} subTitle={Locale.Settings.MaxTokens.SubTitle}>
-        <input
-          className='custom_input'
-          type="number"
-          min={100}
-          max={32000}
-          value={props.modelConfig.max_tokens}
-          onChange={(e) =>
-            props.updateConfig(
-              (config) => (config.max_tokens = ModalConfigValidator.max_tokens(e.currentTarget.valueAsNumber)),
-            )
-          }
-        ></input>
-      </ListItem>
       <ListItem title={Locale.Settings.PresencePenalty.Title} subTitle={Locale.Settings.PresencePenalty.SubTitle}>
         <InputRange
           value={props.modelConfig.presence_penalty?.toFixed(1)}
@@ -71,6 +57,21 @@ export function ModelConfigList(props: {
           }}
         ></InputRange>
       </ListItem>
+      {/* <ListItem title={Locale.Settings.MaxTokens.Title} subTitle={Locale.Settings.MaxTokens.SubTitle}>
+        <input
+          className='custom_input'
+          type="number"
+          min={100}
+          max={32000}
+          value={props.modelConfig.max_tokens}
+          onChange={(e) =>
+            props.updateConfig(
+              (config) => (config.max_tokens = ModalConfigValidator.max_tokens(e.currentTarget.valueAsNumber)),
+            )
+          }
+        ></input>
+      </ListItem>
+
 
       <ListItem title={Locale.Settings.HistoryCount.Title} subTitle={Locale.Settings.HistoryCount.SubTitle}>
         <InputRange

@@ -28,7 +28,8 @@
         "history": "^5.3.0",
         "marked": "^5.1.0",
         "marked-highlight": "^2.0.1",
-        "marked-mangle": "^1.0.1",
+        "marked-mangle": "^1.1.4",
+        "marked-xhtml": "^1.0.6",
         "mermaid": "^10.1.0",
         "rc-queue-anim": "^2.0.0",
         "react": "^18.2.0",
@@ -40,7 +41,7 @@
         "redux-thunk": "^2.4.2",
         "use-debounce": "^9.0.4",
         "webpack-dev-server": "^4.10.0",
-        "zustand": "^4.3.8"
+        "zustand": "^4.4.1"
     },
     "devDependencies": {
         "@commitlint/cli": "^17.6.1",

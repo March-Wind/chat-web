@@ -1,16 +1,18 @@
 import React, { FC, useRef, useState, RefObject, useEffect } from 'react';
 import { marked } from 'marked';
+import { markedXhtml } from 'marked-xhtml';
+import { mangle } from 'marked-mangle';
 import he from 'he';
-// import type { Slugger } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-// import { mangle } from 'marked-mangle';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import { copyToClipboard } from '@/tools/utils';
-// import mermaid from 'mermaid';
 import LoadingIcon from '@/assets/icons/three-dots.svg';
-// import copy2 from '@/assets/icons/copy2.svg';
-
+const processContent = (content: string) => {
+  let _content = content;
+  _content = _content.replace(/：(1)/g, '：\n1');
+  return _content;
+};
 const plugin = markedHighlight({
   langPrefix: 'hljs language-',
   highlight(code, lang) {
@@ -24,15 +26,17 @@ const plugin = markedHighlight({
 });
 marked.use(plugin);
 marked.use({
-  pedantic: false,
-  gfm: true,
-  breaks: false,
-  sanitize: false,
-  smartypants: false,
-  xhtml: false,
-  mangle: false,
+  // pedantic: true,
+  // gfm: true,
+  breaks: true,
+  // sanitize: true,
+  // smartypants: true,
+  // xhtml: true,
+  // mangle: true,
   headerIds: false,
 });
+marked.use(markedXhtml());
+marked.use(mangle());
 marked.use({
   renderer: {
     html(html) {
@@ -54,11 +58,9 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
       copyCode();
     }
   };
-  // const encode2code = he.encode(code);
-  // const _html = marked.parse(code);
   // 处理空格问题
-  const _code = code.replace(/\n\n\s{4}/g, '\n\n&nbsp;&nbsp;&nbsp;&nbsp;');
-  console.log(_code);
+  // const _code = code.replace(/\n\n\s{4}/g, '\n\n&nbsp;&nbsp;&nbsp;&nbsp;');
+  const _code = processContent(code);
   const _html = marked.parse(_code);
   // const _html = marked.parse(code);
   // const encode2code = he.encode(_html);

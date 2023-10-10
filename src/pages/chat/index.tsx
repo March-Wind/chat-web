@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
-import { LoadingOutlined, RedoOutlined, PauseCircleOutlined } from '@ant-design/icons';
+import { LoadingOutlined, RedoOutlined, PauseCircleOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
 import SendWhiteIcon from '@/assets/icons/send-white.svg';
-import BrainIcon from '@/assets/icons/brain.svg';
+// import BrainIcon from '@/assets/icons/brain.svg';
+
 import RenameIcon from '@/assets/icons/rename.svg';
 import ExportIcon from '@/assets/icons/share.svg';
 import ReturnIcon from '@/assets/icons/return.svg';
@@ -32,7 +33,7 @@ import {
   // useAccessStore,
 
   // useAppConfig,
-  DEFAULT_TOPIC,
+  // DEFAULT_TOPIC,
   ChatSession,
 } from '@/store/chat';
 import { useAppConfig, Theme, SubmitKey } from '@/store/config';
@@ -274,7 +275,8 @@ function useScrollToBottom() {
   const scrollToBottom = () => {
     const dom = scrollRef.current;
     if (dom) {
-      setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
+      dom.scrollTo({ top: dom.scrollHeight, behavior: 'smooth' });
+      // setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
     }
   };
 
@@ -314,27 +316,18 @@ export function ChatActions(props: {
   }
 
   // stop all responses
-  const couldStop = ChatControllerPool.hasPending();
-  const stopAll = () => ChatControllerPool.stopAll();
+  // const couldStop = ChatControllerPool.hasPending();
+  // const stopAll = () => ChatControllerPool.stopAll();
 
   return (
     <div className={chatStyle['chat-input-actions']}>
-      {couldStop && (
-        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={stopAll}>
-          <StopIcon />
-        </div>
-      )}
+      {/* 滚动到底部 */}
       {!props.hitBottom && (
         <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.scrollToBottom}>
           <BottomIcon />
         </div>
       )}
-      {props.hitBottom && (
-        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.showPromptModal}>
-          <BrainIcon />
-        </div>
-      )}
-
+      {/* 切换主题 */}
       <div className={`${chatStyle['chat-input-action']} clickable`} onClick={nextTheme}>
         {theme === Theme.Auto ? (
           <AutoIcon />
@@ -344,11 +337,11 @@ export function ChatActions(props: {
           <DarkIcon />
         ) : null}
       </div>
-
+      {/* 普通的提示词 */}
       <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.showPromptHints}>
         <PromptIcon />
       </div>
-
+      {/* 精品提示词 */}
       <div
         className={`${chatStyle['chat-input-action']} clickable`}
         onClick={() => {
@@ -365,7 +358,7 @@ export function ChatActions(props: {
             chatStore.regenerate();
           }}
         >
-          <RedoOutlined />
+          <RedoOutlined className={chatStyle['icon_style']} />
         </div>
       ) : null}
       {/* 暂停生成 */}
@@ -376,7 +369,8 @@ export function ChatActions(props: {
             chatStore.stopGenerate();
           }}
         >
-          <PauseCircleOutlined />
+          {/* <PauseCircleOutlined className={chatStyle['icon_style']} /> */}
+          <StopIcon />
         </div>
       ) : null}
     </div>
@@ -384,7 +378,7 @@ export function ChatActions(props: {
 }
 
 function Chat() {
-  type RenderMessage = ChatMessage & { preview?: boolean };
+  // type RenderMessage = ChatMessage & { preview?: boolean };
   const chatStore = useChatStore();
   const [loading, session = {} as ChatSession, sessionIndex] = useChatStore((state) => [
     state.loading,
@@ -511,8 +505,9 @@ function Chat() {
   // const isChat = location.pathname === Path.Chat;
   // const autoFocus = !isMobileScreen || isChat; // only focus in chat page
   const autoFocus = false; // only focus in chat page // to do
-  const { topic = '新的聊天', messages = [], mask } = session;
-  const { name = '' } = mask || {};
+  const { topic = '新的聊天', messages = [], mask, id } = session;
+  const { name = '', context: preMessages } = mask || {};
+  console.log(11112, preMessages);
   return (
     // <div className={styles.chat} key={session.id} style={{ opacity: loading ? 0 : 1 }}>
     <div className={styles.chat}>
@@ -578,14 +573,48 @@ function Chat() {
         // setAutoScroll(false);
         // }}
       >
+        {/* 预设内容-start */}
+        <>
+          {preMessages && preMessages.length > 0
+            ? preMessages.map((message, i) => {
+                const { content = '' } = message;
+                const isUser = message.role === 'user';
+                return (
+                  <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
+                    <div className={styles['chat-message-container']}>
+                      <div className={styles['chat-message-avatar']}>
+                        {message.role === 'user' ? (
+                          <Avatar avatar={config.avatar} />
+                        ) : (
+                          <MaskAvatar mask={session.mask} />
+                        )}
+                      </div>
+                      <div className={styles['chat-message-item']}>
+                        <Markdown
+                          content={content}
+                          loading={content.length === 0 && !isUser}
+                          fontSize={fontSize}
+                          parentRef={scrollRef}
+                          defaultShow={i >= messages.length - 10}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            : null}
+        </>
+        {/* 预设内容-end */}
+
+        {/* 真正的用户聊天内容-start */}
         <>
           {messages && messages.length > 0
             ? messages.map((message, i) => {
-                const { preview, content = '' } = message;
+                const { content = '' } = message;
                 const isUser = message.role === 'user';
                 // const showActions = !isUser && i > 0 && !(message.preview || message.content.length === 0);
-                const showActions = !isUser && !(preview || content.length === 0);
-                const showTyping = preview || message.streaming;
+                const showActions = !isUser && !(content.length === 0);
+                const showTyping = message.streaming;
                 return (
                   <div key={i} className={isUser ? styles['chat-message-user'] : styles['chat-message']}>
                     <div className={styles['chat-message-container']}>
@@ -611,7 +640,7 @@ function Chat() {
                         )}
                         <Markdown
                           content={content}
-                          loading={(preview || content.length === 0) && !isUser}
+                          loading={content.length === 0 && !isUser}
                           // onContextMenu={(e) => onRightClick(e, message)}
                           // onDoubleClickCapture={() => {
                           //   if (!isMobileScreen) return;
@@ -632,10 +661,11 @@ function Chat() {
                 );
               })
             : null}
-          <div className={loading ? chatStyle['loading-box'] : chatStyle['none']}>
+          <div className={id && (!messages || messages.length === 0) ? chatStyle['loading-box'] : chatStyle['none']}>
             <LoadingOutlined />
           </div>
         </>
+        {/* 真正的用户聊天内容-end */}
       </div>
 
       <div className={styles['chat-input-panel']} key={'chat-input-panel'}>

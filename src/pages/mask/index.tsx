@@ -204,7 +204,7 @@ export function ContextPrompts(props: {
               addContextPrompt({
                 role: 'user',
                 content: '',
-                date: '',
+                // date: '',
               })
             }
           />

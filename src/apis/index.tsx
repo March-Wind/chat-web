@@ -87,7 +87,6 @@ const fetchStreamUrl = (url: string, params: FetchStreamParams) => {
       onFinish?.();
     },
     onError: (err: any) => {
-      debugger;
       if (err?.status === 403 && err?.body?.status === loginAgain) {
         history.push('/authentication?type=login');
         return message.info('请重新登录~');
@@ -346,6 +345,42 @@ export const queryUserPrePrompt = (): Promise<Prompt[]> => {
     .catch((err: any) => {
       if (err) {
         message.error(serverMsg(err?.data?.msg) || '获取用户预设失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+export const updateUserPrePrompt = (data: Prompt) => {
+  const url = `${baseURL}/updateUserPrePrompt`;
+  return axios
+    .post(url, data)
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '更新用户预设失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '更新用户预设失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+export const deleteUserPrePrompt = (id: string) => {
+  const url = `${baseURL}/deleteUserPrePrompt`;
+  return axios
+    .post(url, { id })
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '删除用户预设失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '删除用户预设失败，请稍后再试~');
       }
       return '';
     });

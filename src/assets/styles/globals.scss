@@ -20,6 +20,7 @@
 
   /* stroke */
   --border-in-light: 1px solid rgb(222, 222, 222);
+  --chat-message-item-bg: rgba(0, 0, 0, .05);
 }
 
 @mixin dark {
@@ -40,6 +41,7 @@
   --border-in-light: 1px solid rgba(255, 255, 255, .192);
 
   --theme-color: var(--gray);
+  --chat-message-item-bg: rgba(0, 0, 0, .2);
 
   div:not(.no-dark)>svg {
     filter: invert(.5);
@@ -67,6 +69,7 @@
   --window-content-width: calc(100% - var(--sidebar-width));
   --message-max-width: 90%;
   --full-height: 100%;
+
 }
 
 @media only screen and (max-width: 600px) {

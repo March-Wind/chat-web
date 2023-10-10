@@ -66,7 +66,13 @@ export function ChatItem(props: {
             </>
           )}
 
-          <div className={styles['chat-item-delete']} onClickCapture={props.onDelete}>
+          <div
+            className={styles['chat-item-delete']}
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onDelete?.();
+            }}
+          >
             <DeleteIcon />
           </div>
         </div>
@@ -101,23 +107,26 @@ export function ChatList(props: { narrow?: boolean }) {
   };
 
   useEffect(() => {
-    if (token) {
-      updateSession();
+    if (!token) {
+      return;
     }
-  }, [updateSession, token]);
+    updateSession();
+  }, [token]);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="chat-list">
         {(provided) => (
           <div className={styles['chat-list']} ref={provided.innerRef} {...provided.droppableProps}>
             {sessions.map((item, i) => {
-              const { topic = '新的聊天', mask } = item;
+              const { topic = '新的聊天', mask, messagesCount = 0 } = item;
               const { name = '' } = mask || {};
+              const count = item.messages.length === 0 ? messagesCount : item.messages.length;
+              const _topic = topic === '' && messagesCount > 0 ? '未总结标题' : topic;
               return (
                 <ChatItem
-                  title={name ? `${name}:${topic}` : topic}
+                  title={name ? `${name}:${_topic}` : _topic}
                   time={new Date(item.lastUpdate).toLocaleString()}
-                  count={item.messages.length}
+                  count={count}
                   key={item.id + i}
                   id={item.id + i}
                   index={i}

@@ -13,6 +13,7 @@ export interface PersonInfo {
 }
 export interface PersonStore extends PersonInfo {
   updateInfo: (info?: Partial<PersonInfo>) => void;
+  clear: () => void;
 }
 
 const initialPersonInfo: PersonInfo = {
@@ -30,6 +31,9 @@ export const usePersonStore = create<PersonStore>()(
       ...initialPersonInfo,
       updateInfo(info) {
         set(() => (info ? info : initialPersonInfo));
+      },
+      clear() {
+        set(initialPersonInfo);
       },
     }),
     {

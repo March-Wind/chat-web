@@ -382,7 +382,6 @@ function Authentication(props: any) {
   const handleTabChange = (key: any) => {
     setActiveTab(key);
   };
-
   return (
     <div
       className={styles.register}

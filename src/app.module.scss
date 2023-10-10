@@ -398,7 +398,8 @@
   max-width: 100%;
   margin-top: 10px;
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, .05);
+  // background-color: rgba(0, 0, 0, .05);
+  background-color: var(--chat-message-item-bg);
   padding: 10px;
   font-size: 14px;
   user-select: text;

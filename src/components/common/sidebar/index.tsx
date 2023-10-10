@@ -22,6 +22,7 @@ import { MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH, NARROW_SIDEBAR_WIDTH, Path, REPO_
 
 import { useMobileScreen } from '@/hooks/useWindowSize';
 import { modal } from '@/components/common/antd';
+import { usePersonStore } from '@/store/person';
 // import dynamic from "next/dynamic";
 
 // const ChatList = dynamic(async () => (await import("./chat-list")).ChatList, {
@@ -163,17 +164,21 @@ export function SideBar(props: { className?: string }) {
               <IconButton icon={<SettingsIcon />} shadow />
             </Link>
           </div>
+          {/* 登录 */}
           <div className={styles['sidebar-action']}>
-            <Link to={Path.Authentication}>
+            <Link to={Path.Authentication + '?type=login'}>
               <IconButton icon={<LoginOutlined style={{ color: 'rgb(148 146 146)' }} />} shadow />
             </Link>
           </div>
-          <div className={styles['sidebar-action']}>
-            <a href={REPO_URL} target="_blank" rel="noreferrer">
-              {/* to achieve 登出 */}
-              {/* <IconButton icon={<GithubIcon />} shadow /> */}
-              <IconButton icon={<LogoutOutlined style={{ color: 'rgb(148 146 146)' }} />} shadow />
-            </a>
+          {/* 退出登录 */}
+          <div
+            className={styles['sidebar-action']}
+            onClick={() => {
+              usePersonStore.getState().clear();
+              navigate(Path.Authentication + '?type=login');
+            }}
+          >
+            <IconButton icon={<LogoutOutlined style={{ color: 'rgb(148 146 146)' }} />} shadow />
           </div>
         </div>
         <div>

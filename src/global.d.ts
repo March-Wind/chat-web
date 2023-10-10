@@ -81,4 +81,5 @@ interface Topic {
   title?: string | undefined;
   id: string;
   prePrompt?: Prompt;
+  messagesCount: number;
 }

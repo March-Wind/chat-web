@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import he from 'he';
+
+// import he from 'he';
 // import { trimTopic } from '@/tools/utils';
 
 import Locale from '@/assets/locales';
@@ -70,6 +71,7 @@ export interface ChatSession {
   lastSummarizeIndex: number;
   streaming?: boolean;
   mask?: Mask;
+  messagesCount?: number;
 }
 
 // export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -144,6 +146,7 @@ export const useChatStore = create<ChatStore>()(
         sessions: [createEmptySession()],
         currentSessionIndex: 0,
         globalId: 0,
+        // to drop: 虽然设置了，但是页面上没有用到这个字段
         loading: false,
         updateSession() {
           getTopics()
@@ -178,10 +181,11 @@ export const useChatStore = create<ChatStore>()(
                       lastUpdate: item.lastUpdateTime || new Date().getTime(),
                       lastSummarizeIndex: 0,
                       mask: item.prePrompt,
-                      streaming: false,
+                      messagesCount: currentSession?.messagesCount || item.messagesCount,
+                      // streaming: false,
                     };
                   }),
-                };
+                } as ChatStore;
               });
               const topicId = get().currentSession().id;
               get().getTopicMessages(topicId);
@@ -198,11 +202,13 @@ export const useChatStore = create<ChatStore>()(
             set((state) => {
               const _sessions = state.sessions.slice();
               const _index = _sessions.findIndex((item) => item.id === topicId);
-              _sessions[_index].messages = msgs.map((msg) => {
+              _sessions[_index].messages = msgs.map((msg, index) => {
                 return {
+                  ..._sessions[_index].messages[index],
                   id: msg.id,
                   role: msg.role,
                   content: msg.content,
+                  // streaming: false
                 };
               });
               return {
@@ -291,9 +297,18 @@ export const useChatStore = create<ChatStore>()(
         },
 
         newSession(mask) {
+          // 如果第一个对话是新建的，就删除第一个对话，然后再新建
+          const firstSession = get().sessions[0];
+          if (!firstSession.id && (!firstSession.messages || firstSession.messages.length === 0)) {
+            set({
+              currentSessionIndex: 0,
+              sessions: this.sessions.slice(1),
+            });
+          }
+          // 新建对话
           const session = createEmptySession();
           set(() => ({ globalId: get().globalId + 1 }));
-          session.id = ''; // to do
+          session.id = '';
 
           if (mask) {
             session.mask = { ...mask };
@@ -341,15 +356,16 @@ export const useChatStore = create<ChatStore>()(
               currentSessionIndex: nextIndex,
               sessions,
             }));
-
+            get().selectSession(nextIndex);
             showToast(
               Locale.Home.DeleteToast,
-              {
-                text: Locale.Home.Revert,
-                onClick() {
-                  set(() => restoreState);
-                },
-              },
+              undefined,
+              // {
+              //   text: Locale.Home.Revert,
+              //   onClick() {
+              //     set(() => restoreState);
+              //   },
+              // },
               5000,
             );
           });
@@ -426,7 +442,6 @@ export const useChatStore = create<ChatStore>()(
         },
         async onUserInput(content) {
           const session = get().currentSession();
-
           const userMessage: ChatMessage = createMessage({
             role: 'user',
             content,
@@ -482,6 +497,8 @@ export const useChatStore = create<ChatStore>()(
                 .map((item: any) => {
                   if (item.error) {
                     message.error(item.error);
+                    botMessage.content = item.error;
+                    botMessage.isError = true;
                     return '';
                   }
                   if (item.type === 'topicId') {
@@ -509,6 +526,7 @@ export const useChatStore = create<ChatStore>()(
               botMessage.streaming = false;
               session.streaming = false;
               botMessage.reader = undefined;
+              const isError = botMessage.isError;
               // botMessage.content = message;
               get().onNewMessage(botMessage);
               set(() => ({}));
@@ -518,7 +536,8 @@ export const useChatStore = create<ChatStore>()(
               if (
                 currentSession &&
                 currentSession.id &&
-                (!currentSession.topic || currentSession.topic === DEFAULT_TOPIC)
+                (!currentSession.topic || currentSession.topic === DEFAULT_TOPIC) &&
+                !isError
               ) {
                 get().setTopic(currentSession.id);
               }
@@ -612,13 +631,6 @@ export const useChatStore = create<ChatStore>()(
           });
         },
 
-        // updateStat(message) {
-        //   get().updateCurrentSession((session) => {
-        //     session.stat.charCount += message.content.length;
-        //     // TODO: should update chat count and word count
-        //   });
-        // },
-
         updateCurrentSession(updater) {
           const sessions = get().sessions;
           const index = get().currentSessionIndex;
@@ -643,7 +655,7 @@ export const useChatStore = create<ChatStore>()(
           return {
             state: {
               ...state,
-              transactions: new Map(state.transactions),
+              // transactions: new Map(state.transactions),
             },
           };
         },
@@ -662,6 +674,44 @@ export const useChatStore = create<ChatStore>()(
           localStorage.setItem(name, str);
         },
         removeItem: (name) => localStorage.removeItem(name),
+      },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      onRehydrateStorage(state: ChatStore) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        return (state: ChatStore, error) => {
+          /**  判断是否更新对话列表-start **/
+          const well_preserved = state?.sessions.find((item) => item.id);
+          if (!well_preserved) {
+            const personStoreStr = localStorage.getItem(StoreKey.Person);
+            try {
+              const personStore = personStoreStr ? JSON.parse(personStoreStr) : {};
+              if (personStore?.state?.token) {
+                state.updateSession();
+              }
+            } catch (error) {
+              /* empty */
+            }
+          }
+          /*** 判断是否更新对话列表-start **/
+
+          return {
+            ...state,
+            sessions: state.sessions.map((item) => {
+              return {
+                ...item,
+                streaming: false,
+                messages: item.messages.map((message) => {
+                  return {
+                    ...message,
+                    streaming: false,
+                  };
+                }),
+              };
+            }),
+          } as ChatStore;
+        };
       },
       // migrate(persistedState, version) {
       //   const state = persistedState as any;

@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { StoreKey } from '../constant';
-import { queryPrompts, queryUserPrePrompt, saveUserPrePrompt } from '@/apis';
+import { queryPrompts, queryUserPrePrompt, saveUserPrePrompt, updateUserPrePrompt, deleteUserPrePrompt } from '@/apis';
 import { DEFAULT_MASK_STATE, DEFAULT_MASK_ID, DEFAULT_MASK_AVATAR, createEmptyMask, DEFAULT_TOPIC } from './utilsFn';
 import type { Mask, MaskState, ChatMessage } from './utilsFn';
+import { message } from '@/components/common/antd';
 // import { isSameTime } from '@/tools/formatDate';
 // debugger
 // export type Mask = {
@@ -56,14 +57,24 @@ export const useMaskStore = create<MaskStore>()(
         const index = masks.findIndex((item) => item.id === id);
         const mask = masks[index];
         if (!mask) return;
-        saveUserPrePrompt(mask).then((data) => {
-          if (!data) {
-            return;
-          }
-          const updateMask = { ...mask };
-          masks[index] = updateMask;
-          set(() => ({ masks }));
-        });
+        if (mask.id.length === 24) {
+          updateUserPrePrompt(mask).then((data) => {
+            if (!data) {
+              return;
+            }
+            message.success('更新成功~');
+          });
+        } else {
+          saveUserPrePrompt(mask).then((data) => {
+            if (!data) {
+              return;
+            }
+            message.success('保存成功~');
+            const updateMask = { ...mask };
+            masks[index] = updateMask;
+            set(() => ({ masks }));
+          });
+        }
       },
       update(id, updater) {
         const masks = get().masks;
@@ -78,7 +89,17 @@ export const useMaskStore = create<MaskStore>()(
       delete(id) {
         const masks = get().masks;
         const newMasks = masks.filter((item) => item.id !== id);
-        set(() => ({ masks: newMasks }));
+        if (id.length === 24) {
+          deleteUserPrePrompt(id).then((data) => {
+            if (!data) {
+              return;
+            }
+            message.success('删除成功~');
+            set(() => ({ masks: newMasks }));
+          });
+        } else {
+          set(() => ({ masks: newMasks }));
+        }
       },
       queryPrompts() {
         // 如果是同一天的请求，就略过，就是简单的去重一下请求
@@ -88,7 +109,7 @@ export const useMaskStore = create<MaskStore>()(
         //   return;
         // }
         Promise.all([queryPrompts(), queryUserPrePrompt()]).then((data) => {
-          if (!data || !data[0] || !data[1]) {
+          if (!data || (!data[0] && !data[1])) {
             return;
           }
           const [system = [], user = []] = data;
