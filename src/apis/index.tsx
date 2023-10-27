@@ -6,12 +6,11 @@ import fetchStream from '@/tools/fetchStream';
 import awaitWrap from '@/tools/await-wrap';
 import fingerprintFn from '@/tools/fingerprinting';
 import { isString } from '@/tools/variable-type';
-import { successStatus, loginAgain, waitingForCompletion } from '@/constant';
+import { successStatus, loginAgain } from '@/constant';
 import widthToken from './width-token';
 import { usePersonStore } from '@/store/person';
 import type { Mask } from '@/store/utilsFn';
-import { waitForDebugger } from 'inspector';
-
+import type { ModelConfig } from '@/store/config';
 const env = process.env.NODE_ENV;
 const dev = env === 'development';
 const baseURL = dev ? 'http://127.0.0.1:4001' : 'http://www.qunyangbang.cn/chat-node';
@@ -23,7 +22,7 @@ const serverMsg = (error: any) => {
 };
 
 axios.interceptors.request.use(async (config) => {
-  const [info, err] = await awaitWrap(fingerprintFn());
+  const [info] = await awaitWrap(fingerprintFn());
   const _config = {
     ...config,
   };
@@ -42,7 +41,7 @@ axios.interceptors.request.use(async (config) => {
 
 axios.interceptors.response.use(
   (response) => {
-    const { data, headers } = response;
+    const { headers } = response;
     if (headers) {
       const newToken = response.headers['access_token'];
       if (newToken) {
@@ -116,6 +115,7 @@ interface ChatParams {
   body: { topicId: string; msg: string };
   mask?: Mask;
   onError: (err: any) => void;
+  userModalConfig?: ModelConfig;
 }
 
 export const chat = (params: ChatParams) => {

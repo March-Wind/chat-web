@@ -1,11 +1,11 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef } from 'react';
 
 export function useScrollToBottom() {
   // for auto-scroll
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRefCb = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const scrollToBottom = () => {
-    const dom = scrollRef.current;
+    const dom = scrollRefCb.current;
     if (dom) {
       setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
     }
@@ -19,7 +19,7 @@ export function useScrollToBottom() {
   // });
 
   return {
-    scrollRef,
+    scrollRefCb,
     autoScroll,
     setAutoScroll,
     scrollToBottom,

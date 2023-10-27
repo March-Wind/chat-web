@@ -1,0 +1,14 @@
+diff --git a/node_modules/marked/lib/marked.esm.js b/node_modules/marked/lib/marked.esm.js
+index d11ed95..9bc5f41 100644
+--- a/node_modules/marked/lib/marked.esm.js
++++ b/node_modules/marked/lib/marked.esm.js
+@@ -920,7 +920,8 @@ class _Tokenizer {
+ // @ts-expect-error
+ const block = {
+     newline: /^(?: *(?:\n|$))+/,
+-    code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
++    code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+\`\`\`/,
++    // code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
+     fences: /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
+     hr: /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,
+     heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,

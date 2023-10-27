@@ -13,10 +13,9 @@ export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
 }) {
-  console.log(21323);
   return (
     <>
-      {/* <ListItem title={Locale.Settings.Model}>
+      <ListItem title={Locale.Settings.Model}>
         <Select
           value={props.modelConfig.model}
           onChange={(e) => {
@@ -29,7 +28,7 @@ export function ModelConfigList(props: {
             </option>
           ))}
         </Select>
-      </ListItem> */}
+      </ListItem>
       <ListItem title={Locale.Settings.Temperature.Title} subTitle={Locale.Settings.Temperature.SubTitle}>
         <InputRange
           value={props.modelConfig.temperature?.toFixed(1)}

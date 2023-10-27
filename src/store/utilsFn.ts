@@ -1,7 +1,7 @@
-import Locale, { getLang, Lang } from '@/assets/locales';
+import Locale from '@/assets/locales';
 // import { DEFAULT_TOPIC, ChatMessage } from "./chat";
 import { RequestMessage } from '@/types';
-import { ModelConfig, useAppConfig, ModelType } from './config';
+import { ModelType } from './config';
 export type ChatMessage = RequestMessage & {
   // date: string;
   streaming?: boolean;
@@ -17,7 +17,9 @@ export type Mask = {
   type: 'system' | 'user' | 'base';
   context?: Message[];
   modelConfig: {
+    model: ModelType;
     temperature: number; // 0-2
+    presence_penalty: number;
   };
 };
 

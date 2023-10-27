@@ -6,10 +6,10 @@ import { persist } from 'zustand/middleware';
 
 import Locale from '@/assets/locales';
 import { showToast } from '@/components/common/ui-lib/ui-lib';
-import { ModelType } from './config';
+// import { ModelType } from './config';
 import { Mask, DEFAULT_TOPIC, ChatMessage } from './utilsFn';
 import { StoreKey } from '../constant';
-import { RequestMessage } from '@/types';
+// import { RequestMessage } from '@/types';
 import {
   chat,
   regenerateChat,
@@ -21,7 +21,8 @@ import {
   deleteMessage,
 } from '@/apis';
 import { message } from '@/components/common/antd';
-import { useScrollToBottom } from '@/hooks/useScrollToBottom';
+// import { useScrollToBottom } from '@/hooks/useScrollToBottom';
+import { useAppConfig } from './config';
 
 // import { api, RequestMessage } from "../client/api";
 // import { ChatControllerPool } from "../client/controller";
@@ -135,9 +136,9 @@ interface ChatStore {
   // scrollToBottom: () => void;
 }
 
-function countMessages(msgs: ChatMessage[]) {
-  return msgs.reduce((pre, cur) => pre + cur.content.length, 0);
-}
+// function countMessages(msgs: ChatMessage[]) {
+//   return msgs.reduce((pre, cur) => pre + cur.content.length, 0);
+// }
 // () => ({ scrollToBottom: useScrollToBottom().scrollToBottom })
 export const useChatStore = create<ChatStore>()(
   persist(
@@ -191,6 +192,7 @@ export const useChatStore = create<ChatStore>()(
               get().getTopicMessages(topicId);
             })
             .catch((err) => {
+              console.log(err);
               // 更新列表失败
             });
         },
@@ -347,10 +349,10 @@ export const useChatStore = create<ChatStore>()(
             }
 
             // for undo delete action
-            const restoreState = {
-              currentSessionIndex: get().currentSessionIndex,
-              sessions: get().sessions.slice(),
-            };
+            // const restoreState = {
+            //   currentSessionIndex: get().currentSessionIndex,
+            //   sessions: get().sessions.slice(),
+            // };
 
             set(() => ({
               currentSessionIndex: nextIndex,
@@ -393,7 +395,7 @@ export const useChatStore = create<ChatStore>()(
                 return;
               }
               set((state) => {
-                const index = state.currentSessionIndex;
+                // const index = state.currentSessionIndex;
                 const _sessions = state.sessions.map((item) => {
                   if (item.id === topicId) {
                     return {
@@ -412,7 +414,7 @@ export const useChatStore = create<ChatStore>()(
               console.log(err);
             });
         },
-        onNewMessage(message) {
+        onNewMessage() {
           get().updateCurrentSession((session) => {
             session.lastUpdate = Date.now();
           });
@@ -487,10 +489,21 @@ export const useChatStore = create<ChatStore>()(
           }
           const { session, botMessage } = params!;
           const { mask } = session;
+          const { model, temperature, presence_penalty } = useAppConfig.getState().modelConfig;
           const reader = api({
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            body: { msg: content, reserveIndex, topicId: session.id, prePrompt: mask },
+            body: {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              msg: content,
+              reserveIndex,
+              topicId: session.id,
+              prePrompt: mask,
+              userModalConfig: {
+                model,
+                temperature,
+                presence_penalty,
+              },
+            },
             onMessage(msg) {
               const _msg = get().handleMessage(msg);
               const _content = _msg
@@ -553,7 +566,7 @@ export const useChatStore = create<ChatStore>()(
           });
         },
         async regenerate(topicId?: string, reserveIndex?: number) {
-          const { currentSession, sessions, deleteMessage } = get();
+          const { currentSession, sessions } = get();
           topicId = topicId || currentSession().id;
           if (!topicId) {
             // 目前只可能是在页面上创建了对话，因为被未结束的聊天暂缓了，在数据库没有创建对话，只需要删除错误会发，当做新输入的就行

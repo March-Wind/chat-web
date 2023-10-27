@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
-import { LoadingOutlined, RedoOutlined, PauseCircleOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
+import { LoadingOutlined, RedoOutlined } from '@ant-design/icons';
 import SendWhiteIcon from '@/assets/icons/send-white.svg';
 // import BrainIcon from '@/assets/icons/brain.svg';
 
@@ -15,7 +15,6 @@ import PromptIcon from '@/assets/icons/prompt.svg';
 import MaskIcon from '@/assets/icons/mask.svg';
 import MaxIcon from '@/assets/icons/max.svg';
 import MinIcon from '@/assets/icons/min.svg';
-import ResetIcon from '@/assets/icons/reload.svg';
 
 import LightIcon from '@/assets/icons/light.svg';
 import DarkIcon from '@/assets/icons/dark.svg';
@@ -24,12 +23,12 @@ import BottomIcon from '@/assets/icons/bottom.svg';
 import StopIcon from '@/assets/icons/pause.svg';
 import Markdown from '@/components/common/markdown';
 // import LoadingIcon from '@/assets/icons/three-dots.svg';
-
+import { debounce } from 'lodash';
 import {
   ChatMessage,
   useChatStore,
   // BOT_HELLO,
-  createMessage,
+  // createMessage,
   // useAccessStore,
 
   // useAppConfig,
@@ -55,12 +54,12 @@ import { IconButton } from '@/components/common/button';
 import styles from '@/app.module.scss';
 import chatStyle from './chat.module.scss';
 
-import { ListItem, Modal, showModal } from '@/components/common/ui-lib/ui-lib';
+import { showModal } from '@/components/common/ui-lib/ui-lib';
 
 import { LAST_INPUT_KEY, Path } from '@/constant';
 import { Avatar } from '@/components/common/emoji';
 import { MaskAvatar } from '@/pages/mask';
-import { useMaskStore } from '@/store/mask';
+// import { useMaskStore } from '@/store/mask';
 import useCommand from '@/hooks/useCommand';
 
 // const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
@@ -270,23 +269,51 @@ export function PromptHints(props: { prompts: Prompt[]; onPromptSelect: (prompt:
 
 function useScrollToBottom() {
   // for auto-scroll
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollNode = useRef<HTMLDivElement | null>(null);
+  const lastScrollHeight = useRef<number>(0);
+  const timer = useRef<number | NodeJS.Timeout>();
   const [autoScroll, setAutoScroll] = useState(true);
   const scrollToBottom = () => {
-    const dom = scrollRef.current;
+    const dom = scrollNode.current;
     if (dom) {
       dom.scrollTo({ top: dom.scrollHeight, behavior: 'smooth' });
       // setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
     }
   };
 
-  // auto scroll
-  useLayoutEffect(() => {
-    autoScroll && scrollToBottom();
-  });
+  const scrollRefCb = (node: HTMLDivElement & { isObserver: boolean }) => {
+    if (node && !node.isObserver) {
+      scrollNode.current = node;
+      node.isObserver = true;
+      const observer = new MutationObserver((mutations: MutationRecord[]) => {
+        mutations.forEach(() => {
+          if (
+            autoScroll &&
+            node.scrollHeight !== lastScrollHeight.current &&
+            node.scrollHeight - node.scrollTop - node.clientHeight <= 100
+          ) {
+            node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' });
+          }
+          lastScrollHeight.current = node.scrollHeight;
+        });
+      });
+      observer.observe(node, { attributes: true, childList: true, subtree: true });
 
+      node.onwheel = debounce(
+        () => {
+          setAutoScroll(false);
+          timer?.current && clearTimeout(timer.current);
+          timer.current = setTimeout(() => {
+            setAutoScroll(true);
+          }, 300);
+        },
+        300,
+        { trailing: true, leading: true },
+      );
+    }
+  };
   return {
-    scrollRef,
+    scrollRefCb,
     autoScroll,
     setAutoScroll,
     scrollToBottom,
@@ -294,10 +321,10 @@ function useScrollToBottom() {
 }
 
 export function ChatActions(props: {
-  showPromptModal: () => void;
+  // showPromptModal: () => void;
   scrollToBottom: () => void;
   showPromptHints: () => void;
-  hitBottom: boolean;
+  // hitBottom: boolean;
 }) {
   const config = useAppConfig();
   const navigate = useNavigate();
@@ -322,11 +349,9 @@ export function ChatActions(props: {
   return (
     <div className={chatStyle['chat-input-actions']}>
       {/* 滚动到底部 */}
-      {!props.hitBottom && (
-        <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.scrollToBottom}>
-          <BottomIcon />
-        </div>
-      )}
+      <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.scrollToBottom}>
+        <BottomIcon />
+      </div>
       {/* 切换主题 */}
       <div className={`${chatStyle['chat-input-action']} clickable`} onClick={nextTheme}>
         {theme === Theme.Auto ? (
@@ -389,18 +414,32 @@ function Chat() {
   const session = chatStore.sessions[sessionIndex];
   const config = useAppConfig();
   const fontSize = config.fontSize;
-
+  const scrollNode = useRef<HTMLDivElement>();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPromptModal, setShowPromptModal] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [showPromptModal, setShowPromptModal] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom();
-  const [hitBottom, setHitBottom] = useState(true);
+  const { scrollRefCb, scrollToBottom } = useScrollToBottom();
+  // const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
-  const [query] = useSearchParams();
-
+  // const [query] = useSearchParams();
+  // 发送消息
+  const doSubmit = (userInput: string) => {
+    if (userInput.trim() === '') return;
+    // setIsLoading(true);
+    chatStore.onUserInput(userInput);
+    localStorage.setItem(LAST_INPUT_KEY, userInput);
+    setUserInput('');
+    setPromptHints([]);
+    if (!isMobileScreen) inputRef.current?.focus();
+    // setAutoScroll(true);
+    const sNode = scrollNode.current;
+    if (sNode && sNode.scrollHeight - sNode.scrollTop - sNode.clientHeight <= 100) {
+      scrollToBottom();
+    }
+  };
   useCommand({
     fill: setUserInput,
     submit: (text) => {
@@ -465,22 +504,11 @@ function Chat() {
       }
     }
   };
-  // 发送消息
-  const doSubmit = (userInput: string) => {
-    if (userInput.trim() === '') return;
-    setIsLoading(true);
-    chatStore.onUserInput(userInput).then(() => setIsLoading(false));
-    localStorage.setItem(LAST_INPUT_KEY, userInput);
-    setUserInput('');
-    setPromptHints([]);
-    if (!isMobileScreen) inputRef.current?.focus();
-    setAutoScroll(true);
-  };
 
   // stop response
-  const onUserStop = (messageId: number) => {
-    ChatControllerPool.stop(sessionIndex, messageId);
-  };
+  // const onUserStop = (messageId: number) => {
+  //   ChatControllerPool.stop(sessionIndex, messageId);
+  // };
 
   // check if should send message
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -509,7 +537,6 @@ function Chat() {
   const autoFocus = false; // only focus in chat page // to do
   const { topic = '新的聊天', messages = [], mask, id } = session;
   const { name = '', context: preMessages } = mask || {};
-  console.log(11112, preMessages);
   return (
     // <div className={styles.chat} key={session.id} style={{ opacity: loading ? 0 : 1 }}>
     <div className={styles.chat}>
@@ -567,7 +594,14 @@ function Chat() {
       <div
         key={'chat-body'}
         className={styles['chat-body']}
-        ref={scrollRef}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        ref={(node: HTMLDivElement) => {
+          if (node) {
+            scrollNode.current = node;
+          }
+          scrollRefCb(node);
+        }}
         // onMouseDown={() => inputRef.current?.blur()}
         // onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}
         // onTouchStart={() => {
@@ -596,7 +630,7 @@ function Chat() {
                           content={content}
                           loading={content.length === 0 && !isUser}
                           fontSize={fontSize}
-                          parentRef={scrollRef}
+                          parentRef={scrollRefCb}
                           defaultShow={i >= messages.length - 10}
                         />
                       </div>
@@ -649,7 +683,7 @@ function Chat() {
                           //   setUserInput(message.content);
                           // }}
                           fontSize={fontSize}
-                          parentRef={scrollRef}
+                          parentRef={scrollRefCb}
                           defaultShow={i >= messages.length - 10}
                         />
                       </div>
@@ -674,9 +708,9 @@ function Chat() {
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
         <ChatActions
-          showPromptModal={() => setShowPromptModal(true)}
+          // showPromptModal={() => setShowPromptModal(true)}
           scrollToBottom={scrollToBottom}
-          hitBottom={hitBottom}
+          // hitBottom={hitBottom}
           showPromptHints={() => {
             // Click again to close
             if (promptHints.length > 0) {
@@ -697,8 +731,8 @@ function Chat() {
             onInput={(e) => onInput(e.currentTarget.value)}
             value={userInput}
             onKeyDown={onInputKeyDown}
-            onFocus={() => setAutoScroll(true)}
-            onBlur={() => setAutoScroll(false)}
+            // onFocus={() => setAutoScroll(true)}
+            // onBlur={() => setAutoScroll(false)}
             rows={inputRows}
             autoFocus={autoFocus}
           />
