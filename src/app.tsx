@@ -20,6 +20,7 @@ import './app.scss';
 import './assets/styles/globals.scss';
 import './assets/styles/markdown.scss';
 import './assets/styles/highlight.scss';
+import { basename } from './env';
 
 const Content: FC<{ children: React.ReactNode }> = (props) => {
   const { children } = props;
@@ -74,7 +75,15 @@ const CustomRouter: FC<{ history: BrowserHistory; children: React.ReactNode }> =
 
   useLayoutEffect(() => history.listen(setState), [history]);
 
-  return <Router {...props} location={state.location} navigationType={state.action} navigator={history} />;
+  return (
+    <Router
+      {...props}
+      location={state.location}
+      navigationType={state.action}
+      navigator={history}
+      basename={basename}
+    />
+  );
 };
 const App = () => {
   return (

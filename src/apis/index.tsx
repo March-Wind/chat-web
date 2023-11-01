@@ -11,9 +11,10 @@ import widthToken from './width-token';
 import { usePersonStore } from '@/store/person';
 import type { Mask } from '@/store/utilsFn';
 import type { ModelConfig } from '@/store/config';
+import { basename } from '@/env';
 const env = process.env.NODE_ENV;
 const dev = env === 'development';
-const baseURL = dev ? 'http://127.0.0.1:4001' : 'http://www.qunyangbang.cn/chat-node';
+const baseURL = dev ? 'http://127.0.0.1:4001' : 'https://www.qunyangbang.cn/chat_server';
 const serverMsg = (error: any) => {
   if (error === undefined) {
     return;
@@ -56,7 +57,7 @@ axios.interceptors.response.use(
     const { response } = err;
     if ((response?.status === 403 && response?.body?.status === loginAgain) || response.status === 401) {
       // 过期3天重新登录
-      history.push('/authentication?type=login');
+      history.push(basename + '/authentication?type=login');
       message.warning('请登录~');
       return Promise.reject('');
     }
@@ -87,11 +88,11 @@ const fetchStreamUrl = (url: string, params: FetchStreamParams) => {
     },
     onError: (err: any) => {
       if (err?.status === 403 && err?.body?.status === loginAgain) {
-        history.push('/authentication?type=login');
+        history.push(basename + '/authentication?type=login');
         return message.info('请重新登录~');
       }
       if (err?.status === 401) {
-        history.push('/authentication?type=login');
+        history.push(basename + '/authentication?type=login');
         return message.info('请登录~');
       }
       if (onError) {

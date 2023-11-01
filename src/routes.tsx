@@ -15,6 +15,7 @@ const NewChat = lazy(() => import(/* webpackChunkName: "new-chat" */ './pages/ne
 const MaskPage = lazy(() => import(/* webpackChunkName: "mask" */ './pages/mask/index'));
 const Authentication = lazy(() => import(/* webpackChunkName: "authentication" */ './pages/authentication/index'));
 const Agreement = lazy(() => import(/* webpackChunkName: "agreement" */ './pages/agreement/index'));
+import { basename } from '@/env';
 // const router = createBrowserRouter([
 //   {
 //     path: '/',
