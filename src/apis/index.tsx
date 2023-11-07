@@ -55,7 +55,7 @@ axios.interceptors.response.use(
   },
   (err) => {
     const { response } = err;
-    if ((response?.status === 403 && response?.body?.status === loginAgain) || response.status === 401) {
+    if ((response?.status === 403 && response?.data?.status === loginAgain) || response.status === 401) {
       // 过期3天重新登录
       history.push(basename + '/authentication?type=login');
       message.warning('请登录~');
