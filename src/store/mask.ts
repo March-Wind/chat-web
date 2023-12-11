@@ -4,6 +4,16 @@ import { StoreKey } from '../constant';
 import { queryPrompts, queryUserPrePrompt, saveUserPrePrompt, updateUserPrePrompt, deleteUserPrePrompt } from '@/apis';
 import { DEFAULT_MASK_STATE, DEFAULT_MASK_ID, DEFAULT_MASK_AVATAR, createEmptyMask, DEFAULT_TOPIC } from './utilsFn';
 import type { Mask, MaskState, ChatMessage } from './utilsFn';
+export {
+  DEFAULT_MASK_STATE,
+  DEFAULT_MASK_ID,
+  DEFAULT_MASK_AVATAR,
+  createEmptyMask,
+  DEFAULT_TOPIC,
+  Mask,
+  MaskState,
+  ChatMessage,
+};
 import { message } from '@/components/common/antd';
 // import { isSameTime } from '@/tools/formatDate';
 // debugger
@@ -23,7 +33,6 @@ import { message } from '@/components/common/antd';
 // };
 
 // export type MaskState = typeof DEFAULT_MASK_STATE;
-export * from './utilsFn';
 type MaskStore = MaskState & {
   // queryPromptsTime?: Date;
   queryPrompts: () => void;

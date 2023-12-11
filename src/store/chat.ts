@@ -152,7 +152,7 @@ export const useChatStore = create<ChatStore>()(
         updateSession() {
           getTopics()
             .then((data) => {
-              if (data && !data.length) {
+              if (!data || !data.length) {
                 set(() => ({
                   sessions: [createEmptySession()],
                   currentSessionIndex: 0,

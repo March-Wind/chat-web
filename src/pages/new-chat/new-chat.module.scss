@@ -105,7 +105,12 @@
 
       .mask-name {
         margin-left: 10px;
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 15px;
+        display:-webkit-box;
+        -webkit-box-orient:vertical;
+        -webkit-line-clamp:2;
+        white-space: unset;
       }
     }
   }

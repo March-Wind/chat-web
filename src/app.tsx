@@ -1,8 +1,8 @@
-import React, { useState, lazy, Suspense, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import type { FC } from 'react';
 // import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { useLocation, BrowserRouter, Router } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import type { BrowserHistory } from 'history';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
 import RoutesCom from './routes';
@@ -26,7 +26,7 @@ const Content: FC<{ children: React.ReactNode }> = (props) => {
   const { children } = props;
   useAntd();
   const config = useAppConfig();
-  const isHome = location.pathname === Path.Home;
+  // const isHome = location.pathname === Path.Home;
   const isMobileScreen = useMobileScreen();
   return (
     <div
