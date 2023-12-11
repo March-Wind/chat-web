@@ -41,6 +41,7 @@
         "react-router-dom": "^6.10.0",
         "redux": "^4.2.1",
         "redux-thunk": "^2.4.2",
+        "stylelint": "^14.16.1",
         "use-debounce": "^9.0.4",
         "webpack-dev-server": "^4.10.0",
         "zustand": "^4.4.1"
@@ -79,6 +80,6 @@
             "eslint --fix",
             "prettier --config .prettierrc --write"
         ],
-        "*.+(css|less|scss|sass)": "stylelint --fix --custom-syntax postcss-scss"
+        "*.+(css|less|scss|sass)": "stylelint --fix"
     }
 }
