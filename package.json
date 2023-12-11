@@ -80,6 +80,6 @@
             "eslint --fix",
             "prettier --config .prettierrc --write"
         ],
-        "*.+(css|less|scss|sass)": "stylelint --fix"
+        "*.+(css|less|scss|sass)": "stylelint --fix --custom-syntax postcss-scss"
     }
 }
