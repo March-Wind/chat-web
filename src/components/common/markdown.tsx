@@ -8,6 +8,8 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import { copyToClipboard } from '@/tools/utils';
 import LoadingIcon from '@/assets/icons/three-dots.svg';
+import convert from 'htmr';
+
 const processContent = (content: string) => {
   let _content = content;
   _content = _content.replace(/：(1)/g, '：\n1');
@@ -87,8 +89,10 @@ const MarkdownContent: FC<{ code: string }> = (props) => {
       className="markdown-body-wrap"
       ref={markDownRef}
       onClick={handleClick}
-      dangerouslySetInnerHTML={{ __html: _html }}
-    ></div>
+      // dangerouslySetInnerHTML={{ __html: _html }}
+    >
+      {convert(_html)}
+    </div>
   );
 };
 

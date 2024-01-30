@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
 import { LoadingOutlined, RedoOutlined } from '@ant-design/icons';
@@ -61,6 +61,7 @@ import { Avatar } from '@/components/common/emoji';
 import { MaskAvatar } from '@/pages/mask';
 // import { useMaskStore } from '@/store/mask';
 import useCommand from '@/hooks/useCommand';
+import { use } from 'cytoscape';
 
 // const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
 //   loading: () => <LoadingIcon />,
@@ -269,10 +270,11 @@ export function PromptHints(props: { prompts: Prompt[]; onPromptSelect: (prompt:
 
 function useScrollToBottom() {
   // for auto-scroll
-  const scrollNode = useRef<HTMLDivElement | null>(null);
+  const userLockScroll = useRef(false);
+  const scrollNode = useRef<(HTMLDivElement & { isObserver?: boolean }) | null>(null);
   const lastScrollHeight = useRef<number>(0);
   const timer = useRef<number | NodeJS.Timeout>();
-  const [autoScroll, setAutoScroll] = useState(true);
+  // const [autoScroll, setAutoScroll] = useState(true);
   const scrollToBottom = () => {
     const dom = scrollNode.current;
     if (dom) {
@@ -280,17 +282,31 @@ function useScrollToBottom() {
       // setTimeout(() => (dom.scrollTop = dom.scrollHeight), 1);
     }
   };
-
-  const scrollRefCb = (node: HTMLDivElement & { isObserver: boolean }) => {
+  const onUserMove = useCallback(() => {
+    const _scrollNode = scrollNode.current;
+    if (_scrollNode) {
+      if (_scrollNode.scrollHeight - _scrollNode.scrollTop - _scrollNode.clientHeight <= 5) {
+        userLockScroll.current = false;
+      } else {
+        userLockScroll.current = true;
+      }
+    }
+  }, []);
+  useEffect(() => {
+    scrollNode.current?.addEventListener('mousewheel', onUserMove);
+    scrollNode.current?.addEventListener('touchmove', onUserMove);
+  }, []);
+  const scrollRefCb = () => {
+    const node = scrollNode.current;
     if (node && !node.isObserver) {
-      scrollNode.current = node;
       node.isObserver = true;
       const observer = new MutationObserver((mutations: MutationRecord[]) => {
-        mutations.forEach(() => {
+        mutations.forEach((mutation) => {
           if (
-            autoScroll &&
+            !userLockScroll.current &&
             node.scrollHeight !== lastScrollHeight.current &&
-            node.scrollHeight - node.scrollTop - node.clientHeight <= 100
+            (node.scrollHeight - node.scrollTop - node.clientHeight <= 10 ||
+              (mutation.type === 'childList' && mutation.addedNodes.length > 0))
           ) {
             node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' });
           }
@@ -299,24 +315,24 @@ function useScrollToBottom() {
       });
       observer.observe(node, { attributes: true, childList: true, subtree: true });
 
-      node.onwheel = debounce(
-        () => {
-          setAutoScroll(false);
-          timer?.current && clearTimeout(timer.current);
-          timer.current = setTimeout(() => {
-            setAutoScroll(true);
-          }, 300);
-        },
-        300,
-        { trailing: true, leading: true },
-      );
+      // node.onwheel = debounce(
+      //   () => {
+      //     setAutoScroll(false);
+      //     timer?.current && clearTimeout(timer.current);
+      //     timer.current = setTimeout(() => {
+      //       setAutoScroll(true);
+      //     }, 300);
+      //   },
+      //   300,
+      //   { trailing: true, leading: true },
+      // );
     }
   };
   return {
     scrollRefCb,
-    autoScroll,
-    setAutoScroll,
+    // setAutoScroll,
     scrollToBottom,
+    scrollNode,
   };
 }
 
@@ -414,13 +430,13 @@ function Chat() {
   const session = chatStore.sessions[sessionIndex];
   const config = useAppConfig();
   const fontSize = config.fontSize;
-  const scrollNode = useRef<HTMLDivElement>();
+  // const scrollNode = useRef<HTMLDivElement>();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState('');
   // const [isLoading, setIsLoading] = useState(false);
   // const [showPromptModal, setShowPromptModal] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
-  const { scrollRefCb, scrollToBottom } = useScrollToBottom();
+  const { scrollRefCb, scrollToBottom, scrollNode } = useScrollToBottom();
   // const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
@@ -599,8 +615,8 @@ function Chat() {
         ref={(node: HTMLDivElement) => {
           if (node) {
             scrollNode.current = node;
+            scrollRefCb(node);
           }
-          scrollRefCb(node);
         }}
         // onMouseDown={() => inputRef.current?.blur()}
         // onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}

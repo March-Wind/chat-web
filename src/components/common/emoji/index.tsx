@@ -8,7 +8,7 @@ import BlackBotIcon from '@/assets/icons/black-bot.svg';
 import { usePersonStore } from '@/store/person';
 import styles from './index.module.scss';
 export function getEmojiUrl(unified: string, style: EmojiStyle) {
-  return `https://cdn.staticfile.org/emoji-datasource-apple/14.0.0/img/${style}/64/${unified}.png`;
+  return `https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/${style}/64/${unified}.png`;
 }
 // to optimize
 export function AvatarPicker(props: { onEmojiClick: (emojiId: string) => void }) {
