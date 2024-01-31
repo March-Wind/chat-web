@@ -14,7 +14,7 @@ import type { ModelConfig } from '@/store/config';
 import { basename } from '@/env';
 const env = process.env.NODE_ENV;
 const dev = env === 'development';
-const baseURL = dev ? 'http://127.0.0.1:4001' : 'https://www.qunyangbang.cn/chat_server';
+const baseURL = dev ? 'http://127.0.0.1:4001' : 'https://qunyangbang.cn/chat_server';
 const serverMsg = (error: any) => {
   if (error === undefined) {
     return;
