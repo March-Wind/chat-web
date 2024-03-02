@@ -1,6 +1,7 @@
 import widthToken from '@/apis/width-token';
 // import { StoreKey } from '@/constant';
 import { usePersonStore } from '@/store/person';
+import LineDecoder from './lineDecode';
 interface Params extends RequestInit {
   onMessage: (msg: string) => void;
   onEnd: () => void;
@@ -9,12 +10,19 @@ interface Params extends RequestInit {
 
 const fetchStream = (url: string, params: Params) => {
   const { onMessage, onEnd, onError, ...otherParams } = params;
+  const lineDecode = new LineDecoder();
   const onSuccess = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
     const { value, done } = await reader.read();
     if (done) {
       onEnd?.();
     } else {
-      onMessage?.(new TextDecoder().decode(value));
+      console.log(value);
+      const data = lineDecode.decode(value);
+
+      data.forEach((msg) => {
+        onMessage?.(msg);
+      });
+      // onMessage?.(new TextDecoder().decode(value));
       onSuccess(reader);
     }
   };

@@ -6,7 +6,7 @@ import fetchStream from '@/tools/fetchStream';
 import awaitWrap from '@/tools/await-wrap';
 import fingerprintFn from '@/tools/fingerprinting';
 import { isString } from '@/tools/variable-type';
-import { successStatus, loginAgain } from '@/constant';
+import { successStatus, loginAgain, remindRecharge } from '@/constant';
 import widthToken from './width-token';
 import { usePersonStore } from '@/store/person';
 import type { Mask } from '@/store/utilsFn';
@@ -87,13 +87,22 @@ const fetchStreamUrl = (url: string, params: FetchStreamParams) => {
       onFinish?.();
     },
     onError: (err: any) => {
-      if (err?.status === 403 && err?.body?.status === loginAgain) {
+      if (err?.status === 403) {
+        if (err?.body?.status === loginAgain) {
+          history.push(basename + '/authentication?type=login');
+          return message.info('请重新登录~');
+        }
+        if (err?.body?.status === remindRecharge) {
+          // to do 跳转到充值页面
+          history.push(basename + '/recharge');
+          return message.info(err?.body?.msg || 'token数量不足，请充值后再使用~');
+        }
         history.push(basename + '/authentication?type=login');
-        return message.info('请重新登录~');
+        return message.info(err?.body?.msg || '请重新登录~');
       }
       if (err?.status === 401) {
         history.push(basename + '/authentication?type=login');
-        return message.info('请登录~');
+        return message.info(err?.body?.msg || '请登录~');
       }
       if (onError) {
         onError(err);
@@ -382,6 +391,55 @@ export const deleteUserPrePrompt = (id: string) => {
     .catch((err: any) => {
       if (err) {
         message.error(serverMsg(err?.data?.msg) || '删除用户预设失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+export interface ProductType {
+  id: string;
+  name: string;
+  price: number;
+  // 有效时长英文是effectiveTime,单位是秒
+  effectiveDuration: number;
+  //生效时间
+  // effectiveTime: Date;
+  //失效时间
+  // invalidTime: Date;
+  // tokens数量
+  tokens: number;
+}
+export const queryProducts = (): Promise<ProductType[]> => {
+  const url = `${baseURL}/transaction/queryProducts`;
+  return axios
+    .post(url)
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '获取产品失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '获取产品失败，请稍后再试~');
+      }
+      return '';
+    });
+};
+export const buyProduct = (params: { productId: string; payType: 'wx' | 'ali' }) => {
+  const url = `${baseURL}/transaction/buy`;
+  return axios
+    .post(url, { ...params })
+    .then((response) => {
+      if (response?.data?.status !== successStatus) {
+        message.error(serverMsg(response?.data?.msg) || '付费失败，请稍后再试~');
+        return '';
+      }
+      return response.data.data;
+    })
+    .catch((err: any) => {
+      if (err) {
+        message.error(serverMsg(err?.data?.msg) || '付费失败，请稍后再试~');
       }
       return '';
     });

@@ -15,6 +15,7 @@ const NewChat = lazy(() => import(/* webpackChunkName: "new-chat" */ './pages/ne
 const MaskPage = lazy(() => import(/* webpackChunkName: "mask" */ './pages/mask/index'));
 const Authentication = lazy(() => import(/* webpackChunkName: "authentication" */ './pages/authentication/index'));
 const Agreement = lazy(() => import(/* webpackChunkName: "agreement" */ './pages/agreement/index'));
+const Recharge = lazy(() => import(/* webpackChunkName: "recharge" */ './pages/recharge/index'));
 import { basename } from '@/env';
 // const router = createBrowserRouter([
 //   {
@@ -53,7 +54,8 @@ const RoutesCom = () => {
         path={Path.Home}
         element={
           <Suspense>
-            <Chat />
+            {/* <Chat /> */}
+            <NewChat />
           </Suspense>
         }
       />
@@ -112,6 +114,14 @@ const RoutesCom = () => {
         element={
           <Suspense>
             <Agreement />
+          </Suspense>
+        }
+      />
+      <Route
+        path={'/recharge'}
+        element={
+          <Suspense>
+            <Recharge />
           </Suspense>
         }
       />

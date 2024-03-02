@@ -47,8 +47,23 @@ const Content: FC<{ children: React.ReactNode }> = (props) => {
 const AntdWrap: FC<{ children: React.ReactNode }> = (props) => {
   const { appTheme } = useSwitchTheme();
   const darkTheme = {
+    algorithm: theme.darkAlgorithm,
     token: {
       colorPrimary: '#111d2c',
+      colorBgBase: '#fff',
+      // colorFillContent: '#fff',
+      colorTextBase: 'rgba(0, 0, 0, 0.88)',
+      boxShadow:
+        '0 1px 2px -2px rgba(255, 255, 255, 0.6), 0 3px 6px 0 rgba(255, 255, 255, 0.2), 0 5px 12px 4px rgba(255, 255, 255, 0.2)',
+      // colorTextHeading: 'red', // 控制input前label的字体颜色
+      // colorInfo: 'red',
+      // colorTextDescription: 'red', //
+      // colorTextLightSolid: 'red', // 控制button里面的字颜色
+      // colorTextLabel: 'red',
+      boxShadowSecondary:
+        '0 1px 2px -2px rgba(255, 255, 255, 0.16), 0 3px 6px 0 rgba(255, 255, 255, 0.12), 0 5px 12px 4px rgba(255, 255, 255, 0.09)',
+      boxShadowTertiary:
+        '0 1px 2px -2px rgba(255, 255, 255, 0.16), 0 3px 6px 0 rgba(255, 255, 255, 0.12), 0 5px 12px 4px rgba(255, 255, 255, 0.09)',
     },
   };
   return (
@@ -57,6 +72,11 @@ const AntdWrap: FC<{ children: React.ReactNode }> = (props) => {
         appTheme === 'light'
           ? {
               algorithm: theme.defaultAlgorithm,
+              token: {
+                colorPrimary: 'rgb(29, 147, 171)',
+                // colorTextBase: 'rgba(0, 0, 0, 0.88)',
+                // colorTextBase: 'rgba(255, 255, 255, 0.88)',
+              },
             }
           : darkTheme
       }

@@ -369,7 +369,7 @@ export function ChatActions(props: {
         <BottomIcon />
       </div>
       {/* 切换主题 */}
-      <div className={`${chatStyle['chat-input-action']} clickable`} onClick={nextTheme}>
+      {/* <div className={`${chatStyle['chat-input-action']} clickable`} onClick={nextTheme}>
         {theme === Theme.Auto ? (
           <AutoIcon />
         ) : theme === Theme.Light ? (
@@ -377,7 +377,7 @@ export function ChatActions(props: {
         ) : theme === Theme.Dark ? (
           <DarkIcon />
         ) : null}
-      </div>
+      </div> */}
       {/* 普通的提示词 */}
       <div className={`${chatStyle['chat-input-action']} clickable`} onClick={props.showPromptHints}>
         <PromptIcon />

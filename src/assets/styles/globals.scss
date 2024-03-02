@@ -1,5 +1,5 @@
-@import "./animation.scss";
-@import "./window.scss";
+@import './animation.scss';
+@import './window.scss';
 
 @mixin light {
   --theme: light;
@@ -7,6 +7,7 @@
   /* color */
   --white: white; // contaner和按钮的背景色
   --black: rgb(48, 48, 48);
+
   --gray: rgb(250, 250, 250); // body背景色
   --primary: rgb(29, 147, 171); // 选中色彩
   --second: rgb(231, 248, 255);
@@ -43,7 +44,7 @@
   --theme-color: var(--gray);
   --chat-message-item-bg: rgba(0, 0, 0, .2);
 
-  div:not(.no-dark)>svg {
+  div:not(.no-dark) > svg {
     filter: invert(.5);
   }
 }
@@ -69,7 +70,6 @@
   --window-content-width: calc(100% - var(--sidebar-width));
   --message-max-width: 90%;
   --full-height: 100%;
-
 }
 
 @media only screen and (max-width: 600px) {
@@ -95,8 +95,8 @@
 html {
   height: var(--full-height);
 
-  font-family: "Noto Sans SC", "SF Pro SC", "SF Pro Text", "SF Pro Icons",
-    "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-family: 'Noto Sans SC', 'SF Pro SC', 'SF Pro Text', 'SF Pro Icons', 'PingFang SC', 'Helvetica Neue', 'Helvetica',
+    'Arial', sans-serif;
 }
 
 body {
@@ -154,7 +154,7 @@ input.custom_input {
   font-family: inherit;
 }
 
-input[type="checkbox"].custom_input {
+input[type='checkbox'].custom_input {
   cursor: pointer;
   background-color: var(--white);
   color: var(--black);
@@ -168,16 +168,16 @@ input[type="checkbox"].custom_input {
   justify-content: center;
 }
 
-input[type="checkbox"].custom_input:checked::after {
+input[type='checkbox'].custom_input:checked::after {
   display: inline-block;
   width: 8px;
   height: 8px;
   background-color: var(--primary);
-  content: " ";
+  content: ' ';
   border-radius: 2px;
 }
 
-input[type="range"].custom_input {
+input[type='range'].custom_input {
   appearance: none;
   background-color: var(--white);
   color: var(--black);
@@ -195,15 +195,15 @@ input[type="range"].custom_input {
   border: none;
 }
 
-input[type="range"].custom_input::-webkit-slider-thumb {
+input[type='range'].custom_input::-webkit-slider-thumb {
   @include thumb();
 }
 
-input[type="range"].custom_input::-moz-range-thumb {
+input[type='range'].custom_input::-moz-range-thumb {
   @include thumb();
 }
 
-input[type="range"].custom_input::-ms-thumb {
+input[type='range'].custom_input::-ms-thumb {
   @include thumb();
 }
 
@@ -212,21 +212,21 @@ input[type="range"].custom_input::-ms-thumb {
   width: 24px;
 }
 
-input[type="range"].custom_input::-webkit-slider-thumb:hover {
+input[type='range'].custom_input::-webkit-slider-thumb:hover {
   @include thumbHover();
 }
 
-input[type="range"].custom_input::-moz-range-thumb:hover {
+input[type='range'].custom_input::-moz-range-thumb:hover {
   @include thumbHover();
 }
 
-input[type="range"].custom_input::-ms-thumb:hover {
+input[type='range'].custom_input::-ms-thumb:hover {
   @include thumbHover();
 }
 
-input[type="number"].custom_input,
-input[type="text"].custom_input,
-input[type="password"].custom_input {
+input[type='number'].custom_input,
+input[type='text'].custom_input,
+input[type='password'].custom_input {
   appearance: none;
   border-radius: 10px;
   border: var(--border-in-light);
@@ -295,7 +295,7 @@ pre {
     transition: all ease .3s;
 
     &:after {
-      content: "copy";
+      content: 'copy';
     }
 
     &:hover {
@@ -384,7 +384,6 @@ pre {
 // .ant-select-selection-item {
 //   background-color: transparent !important;
 // }
-
 
 // .authentication_name{
 

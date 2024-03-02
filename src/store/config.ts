@@ -20,7 +20,7 @@ export const DEFAULT_CONFIG = {
   submitKey: SubmitKey.Enter as SubmitKey,
   avatar: '1f603',
   fontSize: 14,
-  theme: Theme.Auto as Theme,
+  theme: Theme.Light as Theme,
   tightBorder: true,
   sendPreviewBubble: true,
   sidebarWidth: 300,
@@ -135,7 +135,7 @@ export const useAppConfig = create<ChatConfigStore>()(
       },
 
       update(updater) {
-        const config = { ...get() };
+        const config = { ...get(), theme: Theme.Light };
         updater(config);
         set(() => config);
       },

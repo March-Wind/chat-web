@@ -13,7 +13,7 @@ export interface UpdateStore {
   lastUpdateUsage: number;
 
   version: string;
-  getLatestVersion: (force?: boolean) => Promise<void>;
+  // getLatestVersion: (force?: boolean) => Promise<void>;
   updateUsage: (force?: boolean) => Promise<void>;
 }
 
@@ -41,28 +41,28 @@ export const useUpdateStore = create<UpdateStore>()(
 
       version: 'unknown',
 
-      async getLatestVersion(force = false) {
-        set(() => ({ version: queryMeta('version') ?? 'unknown' }));
+      // async getLatestVersion(force = false) {
+      //   set(() => ({ version: queryMeta('version') ?? 'unknown' }));
 
-        const overTenMins = Date.now() - get().lastUpdate > 10 * ONE_MINUTE;
-        if (!force && !overTenMins) return;
+      //   const overTenMins = Date.now() - get().lastUpdate > 10 * ONE_MINUTE;
+      //   if (!force && !overTenMins) return;
 
-        set(() => ({
-          lastUpdate: Date.now(),
-        }));
+      //   set(() => ({
+      //     lastUpdate: Date.now(),
+      //   }));
 
-        try {
-          const data = await (await fetch(FETCH_COMMIT_URL)).json();
-          const remoteCommitTime = data[0].commit.committer.date;
-          const remoteId = new Date(remoteCommitTime).getTime().toString();
-          set(() => ({
-            remoteVersion: remoteId,
-          }));
-          console.log('[Got Upstream] ', remoteId);
-        } catch (error) {
-          console.error('[Fetch Upstream Commit Id]', error);
-        }
-      },
+      //   try {
+      //     const data = await (await fetch(FETCH_COMMIT_URL)).json();
+      //     const remoteCommitTime = data[0].commit.committer.date;
+      //     const remoteId = new Date(remoteCommitTime).getTime().toString();
+      //     set(() => ({
+      //       remoteVersion: remoteId,
+      //     }));
+      //     console.log('[Got Upstream] ', remoteId);
+      //   } catch (error) {
+      //     console.error('[Fetch Upstream Commit Id]', error);
+      //   }
+      // },
 
       async updateUsage(force = false) {
         const overOneMinute = Date.now() - get().lastUpdateUsage >= ONE_MINUTE;

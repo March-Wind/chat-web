@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 // import { trimTopic } from '@/tools/utils';
 
 import Locale from '@/assets/locales';
-import { showToast } from '@/components/common/ui-lib/ui-lib';
+import { Toast, showToast } from '@/components/common/ui-lib/ui-lib';
 // import { ModelType } from './config';
 import { Mask, DEFAULT_TOPIC, ChatMessage } from './utilsFn';
 import { StoreKey } from '../constant';
@@ -427,6 +427,9 @@ export const useChatStore = create<ChatStore>()(
             const index = len;
             const last = prev[index] || '';
             const maybeJSON = last + current;
+            if (!maybeJSON) {
+              return prev;
+            }
             try {
               const json = JSON.parse(maybeJSON);
               prev[index] = json;
@@ -444,6 +447,10 @@ export const useChatStore = create<ChatStore>()(
         },
         async onUserInput(content) {
           const session = get().currentSession();
+          if (session.messages.length >= 50) {
+            message.error('对话记录过长，请开启新的对话~');
+            return;
+          }
           const userMessage: ChatMessage = createMessage({
             role: 'user',
             content,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 
 import styles from './settings.module.scss';
 
@@ -30,6 +30,7 @@ import { Prompt, SearchService, usePromptStore } from '@/store/prompt';
 import { InputRange } from '@/components/common/input-range';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarPicker } from '@/components/common/emoji';
+import { isEqual } from 'lodash';
 
 function EditPromptModal(props: { id: number; onClose: () => void }) {
   const promptStore = usePromptStore();
@@ -178,20 +179,20 @@ function Settings() {
   const chatStore = useChatStore();
 
   const updateStore = useUpdateStore();
-  const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const currentVersion = formatVersionDate(updateStore.version);
-  const remoteId = formatVersionDate(updateStore.remoteVersion);
-  const hasNewVersion = currentVersion !== remoteId;
+  // const [checkingUpdate, setCheckingUpdate] = useState(false);
+  // const currentVersion = formatVersionDate(updateStore.version);
+  // const remoteId = formatVersionDate(updateStore.remoteVersion);
+  // const hasNewVersion = currentVersion !== remoteId;
 
-  function checkUpdate(force = false) {
-    setCheckingUpdate(true);
-    updateStore.getLatestVersion(force).then(() => {
-      setCheckingUpdate(false);
-    });
+  // function checkUpdate(force = false) {
+  //   setCheckingUpdate(true);
+  //   updateStore.getLatestVersion(force).then(() => {
+  //     setCheckingUpdate(false);
+  //   });
 
-    console.log('[Update] local version ', new Date(+updateStore.version).toLocaleString());
-    console.log('[Update] remote version ', new Date(+updateStore.remoteVersion).toLocaleString());
-  }
+  //   console.log('[Update] local version ', new Date(+updateStore.version).toLocaleString());
+  //   console.log('[Update] remote version ', new Date(+updateStore.remoteVersion).toLocaleString());
+  // }
 
   // const usage = {
   //   used: updateStore.used,
@@ -220,7 +221,7 @@ function Settings() {
   // const showUsage = accessStore.isAuthorized();
   useEffect(() => {
     // checks per minutes
-    checkUpdate();
+    // checkUpdate();
     // showUsage && checkUsage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -237,7 +238,6 @@ function Settings() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log(222, config.submitKey);
   return (
     <>
       <div className="window-header">
@@ -301,14 +301,14 @@ function Settings() {
             </Popover>
           </ListItem>
 
-          <ListItem
+          {/* <ListItem
             title={Locale.Settings.Update.Version(currentVersion ?? 'unknown')}
             subTitle={
               checkingUpdate
                 ? Locale.Settings.Update.IsChecking
                 : hasNewVersion
-                  ? Locale.Settings.Update.FoundUpdate(remoteId ?? 'ERROR')
-                  : Locale.Settings.Update.IsLatest
+                ? Locale.Settings.Update.FoundUpdate(remoteId ?? 'ERROR')
+                : Locale.Settings.Update.IsLatest
             }
           >
             {checkingUpdate ? (
@@ -325,7 +325,7 @@ function Settings() {
                 onClick={() => checkUpdate(true)}
               />
             )}
-          </ListItem>
+          </ListItem> */}
 
           <ListItem title={Locale.Settings.SendKey}>
             <Select
@@ -388,7 +388,7 @@ function Settings() {
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
           >
             <input
-              className='custom_input'
+              className="custom_input"
               type="checkbox"
               checked={config.sendPreviewBubble}
               onChange={(e) => updateConfig((config) => (config.sendPreviewBubble = e.currentTarget.checked))}
@@ -397,7 +397,7 @@ function Settings() {
 
           <ListItem title={Locale.Settings.Mask.Title} subTitle={Locale.Settings.Mask.SubTitle}>
             <input
-              className='custom_input'
+              className="custom_input"
               type="checkbox"
               checked={!config.dontShowMaskSplashScreen}
               onChange={(e) => updateConfig((config) => (config.dontShowMaskSplashScreen = !e.currentTarget.checked))}
@@ -407,7 +407,7 @@ function Settings() {
         <List>
           <ListItem title={Locale.Settings.Prompt.Disable.Title} subTitle={Locale.Settings.Prompt.Disable.SubTitle}>
             <input
-              className='custom_input'
+              className="custom_input"
               type="checkbox"
               checked={config.disablePromptHint}
               onChange={(e) => updateConfig((config) => (config.disablePromptHint = e.currentTarget.checked))}
@@ -442,4 +442,4 @@ function Settings() {
     </>
   );
 }
-export default Settings;
+export default memo(Settings, isEqual);

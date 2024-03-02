@@ -167,8 +167,10 @@
 .chat-item:hover {
   background-color: var(--hover-color);
 }
-
 .chat-item-selected {
+  border-color: var(--primary);
+}
+.chat-item.chat-item-selected {
   border-color: var(--primary);
 }
 

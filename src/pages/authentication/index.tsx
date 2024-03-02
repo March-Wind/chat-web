@@ -337,7 +337,7 @@ const Login: FC<TabsProps> = (props) => {
           token: success.token,
         });
         message.success('登录成功，正在跳转...');
-        navigate('/chat');
+        navigate('/');
       }
     });
   };
