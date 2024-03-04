@@ -12,16 +12,36 @@ const fetchStream = (url: string, params: Params) => {
   const { onMessage, onEnd, onError, ...otherParams } = params;
   const lineDecode = new LineDecoder();
   const onSuccess = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
-    const { value, done } = await reader.read();
-    if (done) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { value, done, err } = await reader.read().catch((err: any) => {
+      console.error('reader.read', err);
+      return Promise.resolve({
+        value: new Uint8Array(),
+        done: true,
+        err: err.message || '接收数据失败，但是数据仍然在生成中，请在3s后刷新~',
+      });
+    });
+    if (err) {
+      onError?.(err);
+      // reader.cancel();
+      return;
+    } else if (done) {
       onEnd?.();
     } else {
       console.log(value);
-      const data = lineDecode.decode(value);
+      let data;
+      try {
+        data = lineDecode.decode(value);
+      } catch (error) {
+        /* empty */
+      }
+      if (data && Array.isArray(data)) {
+        data.forEach((msg) => {
+          onMessage?.(msg);
+        });
+      }
 
-      data.forEach((msg) => {
-        onMessage?.(msg);
-      });
       // onMessage?.(new TextDecoder().decode(value));
       onSuccess(reader);
     }
