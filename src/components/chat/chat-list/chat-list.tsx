@@ -82,7 +82,7 @@ export function ChatItem(props: {
 }
 
 export function ChatList(props: { narrow?: boolean }) {
-  const { token } = usePersonStore();
+  const { token, email } = usePersonStore();
   const [sessions, selectedIndex, selectSession, moveSession, updateSession] = useChatStore((state) => [
     state.sessions,
     state.currentSessionIndex,
@@ -111,7 +111,13 @@ export function ChatList(props: { narrow?: boolean }) {
       return;
     }
     updateSession();
-  }, [token]);
+  }, []);
+  useEffect(() => {
+    if (!email) {
+      return;
+    }
+    updateSession();
+  }, [email]);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="chat-list">
